@@ -36,10 +36,11 @@ if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
   zinit snippet OMZP::command-not-found
   zinit snippet OMZP::ansible
   zinit snippet OMZP::brew
-  zinit snippet OMZP::docker
+  zinit snippet OMZP::docker/completions/_docker
   zinit snippet OMZP::docker-compose
   zinit snippet OMZP::extract
   zinit snippet OMZP::gitignore
+  zinit snippet OMZP::git-commit
 
 
   # reload snippets every new shell
@@ -53,7 +54,7 @@ if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
   zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
   zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
   zstyle ':completion:*' menu no
-  zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
+  zstyle ':fzf-tab:complete:cd:*' fzf-preview "ls --color $realpath"
 
   # History
   HISTSIZE=5000
