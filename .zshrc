@@ -9,7 +9,8 @@ if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
     HOMEBREW_PREFIX=$(brew --prefix)
     for d in "${HOMEBREW_PREFIX}"/opt/*/libexec/gnubin; do export PATH=$d:$PATH; done 
   fi
-  export PATH="$PATH:/Users/bfoerschner/.local/bin"
+  export PATH="$PATH:$HOME/.local/bin"
+  export PATH="$PATH:$HOME/go/bin"
 
   # Set the directory we want to store zinit and plugins
   ZINIT_HOME="${HOME}/.local/share/zinit/zinit.git"
