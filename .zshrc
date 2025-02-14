@@ -58,10 +58,10 @@ if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
   zstyle ':fzf-tab:complete:cd:*' fzf-preview "ls --color $realpath"
 
   # History
-  HISTSIZE=5000
-  HISTFILE=~/.zsh_history
-  SAVEHIST=$HISTSIZE
-  HISTDUP=erase
+  export HISTSIZE=5000
+  export HISTFILE=~/.zsh_history
+  export SAVEHIST=$HISTSIZE
+  export HISTDUP=erase
   setopt appendhistory
   setopt sharehistory
   setopt hist_ignore_space
