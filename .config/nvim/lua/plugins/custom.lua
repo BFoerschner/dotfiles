@@ -207,6 +207,12 @@ return {
       })
     end,
   },
+  {
+    "folke/snacks.nvim",
+    opts = {
+      scroll = { enabled = false },
+    },
+  },
   { -- add any tools you want to have installed below
     "williamboman/mason.nvim",
     opts = {
