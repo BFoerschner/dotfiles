@@ -74,6 +74,7 @@ if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
   alias ll='ls -la'
   alias l.='ls -d .* --color=auto'
   alias gig='gi $(gi list &>/dev/null | tr "," "\n" | fzf)'
+  alias dive="docker run -ti --rm  -v /var/run/docker.sock:/var/run/docker.sock wagoodman/dive"
 
   # Exports
   export FZF_CTRL_T_OPTS="
