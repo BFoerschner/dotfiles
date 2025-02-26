@@ -11,6 +11,7 @@ if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
   fi
   export PATH="$PATH:$HOME/.local/bin"
   export PATH="$PATH:$HOME/go/bin"
+  export PATH="$PATH:$HOME/.carg/bin"
 
   # Set the directory we want to store zinit and plugins
   ZINIT_HOME="${HOME}/.local/share/zinit/zinit.git"
