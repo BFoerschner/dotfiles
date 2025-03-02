@@ -72,13 +72,13 @@ if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
   setopt hist_ignore_dups
   setopt hist_find_no_dups
 
-  alias ls='ls --color=auto'
+  alias ls='eza --icons'
   alias ll='ls -la'
   alias l.='ls -d .* --color=auto'
   alias gig='gi $(gi list &>/dev/null | tr "," "\n" | fzf)'
   alias dive="docker run -ti --rm  -v /var/run/docker.sock:/var/run/docker.sock wagoodman/dive"
   alias sen="docker run -v /var/run/docker.sock:/run/docker.sock -ti -e TERM tomastomecek/sen"
-  alias fd="fdfind"
+
 
   # Exports
   export FZF_CTRL_T_OPTS="
