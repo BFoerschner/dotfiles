@@ -12,3 +12,6 @@
   line-numbers = true
 [merge]
   conflictstyle = zdiff3
+[alias]
+  slog = log --pretty=tformat:'%C(bold blue)%h %C(bold red)%ad %C(bold blue)%aN%C(auto)%d %s%C(reset)' --date=short --graph
+  wiff = diff --word-diff=color
