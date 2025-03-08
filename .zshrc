@@ -52,6 +52,7 @@ if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
   zinit light zsh-users/zsh-syntax-highlighting
   zinit light zsh-users/zsh-autosuggestions
   zinit light Aloxaf/fzf-tab
+  zinit light birdhackor/zsh-eza-ls-plugin
 
   # Completion styling
   zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
@@ -72,9 +73,6 @@ if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
   setopt hist_ignore_dups
   setopt hist_find_no_dups
 
-  alias ls='eza --icons'
-  alias ll='ls -la'
-  alias l.='ls -d .* --color=auto'
   alias gig='gi $(gi list &>/dev/null | tr "," "\n" | fzf)'
 
   export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --color=bg+:#293739,bg:#1B1D1E,border:#808080,spinner:#E6DB74,hl:#7E8E91,fg:#F8F8F2,header:#7E8E91,info:#A6E22E,pointer:#A6E22E,marker:#F92672,fg+:#F8F8F2,prompt:#F92672,hl+:#F92672"
