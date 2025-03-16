@@ -256,4 +256,103 @@ return {
   { "akinsho/bufferline.nvim", enabled = false },
   { "nvim-neo-tree/neo-tree.nvim", enabled = false },
   { "folke/flash.nvim", enabled = false },
+  {
+    "jellydn/hurl.nvim",
+    dependencies = {
+      "MunifTanjim/nui.nvim",
+      "nvim-lua/plenary.nvim",
+      "nvim-treesitter/nvim-treesitter",
+      -- Optional, for markdown rendering with render-markdown.nvim
+      {
+        "MeanderingProgrammer/render-markdown.nvim",
+        opts = {
+          file_types = { "markdown" },
+        },
+        ft = { "markdown" },
+      },
+    },
+    ft = "hurl",
+    opts = {
+      -- Show debugging info
+      debug = false,
+      -- Show notification on run
+      show_notification = false,
+      -- Show response in popup or split
+      auto_close = false,
+      mode = "split",
+      -- Default formatter
+      formatters = {
+        json = { "jq" }, -- Make sure you have install jq in your system, e.g: brew install jq
+        html = {
+          "prettier", -- Make sure you have install prettier in your system, e.g: npm install -g prettier
+          "--parser",
+          "html",
+        },
+        xml = {
+          "tidy", -- Make sure you have installed tidy in your system, e.g: brew install tidy-html5
+          "-xml",
+          "-i",
+          "-q",
+        },
+      },
+      -- Default mappings for the response popup or split views
+      mappings = {
+        close = "q", -- Close the response popup or split view
+        next_panel = "<C-n>", -- Move to the next response popup window
+        prev_panel = "<C-p>", -- Move to the previous response popup window
+      },
+    },
+    keys = {
+      -- Run API request
+      { "<leader>A", "<cmd>HurlRunner<CR>", desc = "Run All requests" },
+      { "<leader>a", "<cmd>HurlRunnerAt<CR>", desc = "Run Api request" },
+      { "<leader>te", "<cmd>HurlRunnerToEntry<CR>", desc = "Run Api request to entry" },
+      { "<leader>tE", "<cmd>HurlRunnerToEnd<CR>", desc = "Run Api request from current entry to end" },
+      { "<leader>tm", "<cmd>HurlToggleMode<CR>", desc = "Hurl Toggle Mode" },
+      { "<leader>tv", "<cmd>HurlVerbose<CR>", desc = "Run Api in verbose mode" },
+      { "<leader>tV", "<cmd>HurlVeryVerbose<CR>", desc = "Run Api in very verbose mode" },
+      -- Run Hurl request in visual mode
+      { "<leader>h", ":HurlRunner<CR>", desc = "Hurl Runner", mode = "v" },
+    },
+  },
+  {
+    "ovk/endec.nvim",
+    event = "VeryLazy",
+    opts = {
+      keymaps = {
+        -- Decode Base64 in-place
+        decode_base64_inplace = "<leader>tdb", -- normal
+        vdecode_base64_inplace = "<leader>tdb", -- visual
+        -- Encode Base64 in-place (normal mode)
+        encode_base64_inplace = "<leader>teb", -- normal
+        vencode_base64_inplace = "<leader>teb", -- visual
+        -- Decode Base64URL in-place
+        decode_base64url_inplace = "<leader>tdB", -- normal
+        vdecode_base64url_inplace = "<leader>tdB", -- visual
+        -- Encode Base64URL in-place
+        encode_base64url_inplace = "<leader>teB", -- normal
+        vencode_base64url_inplace = "<leader>teB", -- visual
+        -- Decode URL in-place
+        decode_url_inplace = "<leader>tdU", -- normal
+        vdecode_url_inplace = "<leader>tdU", -- visual
+        -- Encode URL in-place
+        encode_url_inplace = "<leader>teU", -- normal
+        vencode_url_inplace = "<leader>teU", --visual
+      },
+    },
+  },
+  {
+    "michaelrommel/nvim-silicon",
+    lazy = true,
+    cmd = "Silicon",
+    opts = {
+      output = function()
+        local path = "./" .. os.date("!%Y-%m-%dT%H-%M-%SZ") .. "_code.png"
+        if vim.fn.has("clipboard") == 1 then
+          vim.fn.setreg("+", path)
+        end
+        return path
+      end,
+    },
+  },
 }

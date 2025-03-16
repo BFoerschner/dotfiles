@@ -12,6 +12,126 @@
   line-numbers = true
 [merge]
   conflictstyle = zdiff3
+[pull]
+	rebase = true
 [alias]
   slog = log --pretty=tformat:'%C(bold blue)%h %C(bold red)%ad %C(bold blue)%aN%C(auto)%d %s%C(reset)' --date=short --graph
   wiff = diff --word-diff=color
+  ndiff = "! args=$@; shift $#; nvim -c \"DiffviewOpen $args\""
+
+  a = add
+  b = branch
+  c = commit
+  d = diff
+  f = fetch
+  g = grep
+  l = log
+  m = merge
+  o = checkout
+  p = pull
+  s = status
+  w = whatchanged
+
+  aa = add --all
+  ca = commit --amend
+  ci = commit --interactive
+  cm = commit --message
+  cam = commit --amend --message
+  cane = commit --amend --no-edit
+  caa = commit --amend --all
+  caam = commit --amend --all --message
+  caane = commit --amend --all --no-edit
+  co = checkout
+  cob = checkout -b
+  cp = cherry-pick
+  cpa = cherry-pick --abort
+  cpc = cherry-pick --continue
+  cpn = cherry-pick --no-commit
+  cpnx = cherry-pick --no-commit -x
+  dc = diff --cached # Show changes not yet staged
+  ds = diff --staged # Show changes about to be commited
+  fa = fetch --all
+  fp = fetch --prune
+  fav = fetch --all --verbose
+  lg = log --graph
+  lo = log --oneline
+  lor = log --oneline --reverse
+  lp = log --patch
+  rb = rebase
+  rba = rebase --abort
+  rbc = rebase --continue
+  rbs = rebase --skip
+  rbi = rebase --interactive
+  rbiu = rebase --interactive @{upstream}
+  # See <https://blog.filippo.io/git-fixup-amending-an-older-commit/>
+  # This is a slightly modified version
+  fixup = "!f() { TARGET=\"$(git rev-parse \"$1\")\"; git commit --fixup=\"$TARGET\" && GIT_EDITOR=true git rebase --interactive --autosquash \"$TARGET\"~; }; f"
+  rl = reflog
+  rr = remote
+  rrs = remote show
+  rv = revert
+  rvnc = revert --no-commit
+  sb = show-branch
+  sm = submodule
+  smi = submodule init
+  sma = submodule add
+  sms = submodule sync
+  smu = submodule update
+  smui = submodule update --init
+  smuir = submodule update --init --recursive
+  ss = status --short
+  ssb = status --short --branch
+
+  get = !git fetch --prune && git pull --rebase && git submodule update --init --recursive
+  put = !git commit --all && git push
+  # Merging helper
+  ours   = !"f() { git checkout --ours   $@ && git add $@; }; f"
+  theirs = !"f() { git checkout --theirs $@ && git add $@; }; f"
+
+  cleanout = !git clean -df && git checkout -- .
+  churn = !"f() { \
+      git log \
+      --all \
+      --find-copies \
+      --find-renames \
+      --name-only \
+      --format='format:' \
+      \"$@\" | \
+      awk 'NF{a[$0]++}END{for(i in a){print a[i], i}}' | \
+      sort -rn; \
+  }; f"
+  reincarnate = !"f() { \
+      [[ -n $@ ]] && \
+      git checkout \"$@\" && \
+      git unpublish && \
+      git checkout main && \
+      git branch -D \"$@\" && \
+      git checkout -b \"$@\" && \
+      git publish; \
+  }; f"
+	wip = !"git add -A; git ls-files --deleted -z | xargs -0 git rm; git commit -m \"wip\""
+	unwip = !"git log -n 1 | grep -q -c wip && git reset HEAD~1"
+	; rb = !"git wip;git rebase -i origin/master;git unwip"
+  rb = "!f(){ git wip;git rebase -i ${1:-origin/master};git unwip; }; f" # optional parameter to pass branch
+	pr = !"git fetch;git wip;git rebase --stat origin;git unwip;git heads"
+	head = !"git log -n1"
+	lost = !"git fsck | awk '/dangling commit/ {print $3}' | git show --format='SHA1: %C(yellow)%h%Creset %f' --stdin | awk '/SHA1/ {sub(\"SHA1: \", \"\"); print}'"
+	heads = !"git log origin/master.. --format='%Cred%h%Creset;%C(yellow)%an%Creset;%H;%Cblue%f%Creset' | git name-rev --annotate-stdin --always --name-only | column -t -s';'"
+  # wip but creates a branch wip_<user>_<branch>
+  wipp = "!f() { \
+    u=$(git config user.name | awk '{print tolower($0)}' | tr ' ' '_'); \
+    b=\"wip_${u}_$(git rev-parse --abbrev-ref HEAD)\"; \
+    git add -A && git ls-files --deleted -z | xargs -0 git rm && git commit -m 'wip' && \
+    git branch -f \"$b\" && git push -f origin \"$b\"; \
+  }; f" 
+  # unwip but looks for branch wip_<user>_<branch>
+  unwipp = "!f() { \
+    u=$(git config user.name | awk '{print tolower($0)}' | tr ' ' '_'); \
+    b=\"wip_${u}_$(git rev-parse --abbrev-ref HEAD)\"; \
+    if git ls-remote --exit-code --heads origin \"$b\" >/dev/null 2>&1; then \
+      git fetch origin \"$b\" && git merge --squash FETCH_HEAD && \
+      git branch -D \"$b\" && git push origin --delete \"$b\"; \
+    else \
+      echo \"No remote WIP branch found: $b\"; \
+    fi; \
+  }; f"

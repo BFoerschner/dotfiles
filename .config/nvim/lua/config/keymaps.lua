@@ -26,3 +26,67 @@ end, { desc = "Replace selected text", noremap = true, silent = true })
 vim.keymap.set("x", "<leader>R", function()
   vim.api.nvim_input(":s/\\%V//gI<Left><Left><Left><Left>")
 end, { desc = "Search and replace in selection" })
+
+local wk = require("which-key")
+wk.add({
+  mode = { "v" },
+  { "<leader>t", group = "Transformations" },
+})
+wk.add({
+  mode = { "v" },
+  { "<leader>s", group = "Silicon" },
+  {
+    "<leader>sc",
+    function()
+      require("nvim-silicon").file()
+    end,
+    desc = "Save code screenshot file, copy path to clipboard",
+  },
+  {
+    "<leader>sC",
+    function()
+      require("nvim-silicon").clip()
+    end,
+    desc = "Copy code screenshot to clipboard",
+  },
+})
+vim.keymap.set("n", "<leader><leader>v", function()
+  if next(require("diffview.lib").views) == nil then
+    vim.cmd("DiffviewOpen")
+  else
+    vim.cmd("DiffviewClose")
+  end
+end)
+
+-- Diffview Keybindings
+local function toggle_diffview(cmd)
+  if next(require("diffview.lib").views) == nil then
+    vim.cmd(cmd)
+  else
+    vim.cmd("DiffviewClose")
+  end
+end
+wk.add({
+  mode = { "n" },
+  {
+    "<leader>gd",
+    function()
+      toggle_diffview("DiffviewOpen")
+    end,
+    desc = "Diff Index",
+  },
+  {
+    "<leader>gD",
+    function()
+      toggle_diffview("DiffviewOpen master..HEAD")
+    end,
+    desc = "Diff Master",
+  },
+  {
+    "<leader>gf",
+    function()
+      toggle_diffview("DiffviewFileHistory %")
+    end,
+    desc = "Open diffs for current file",
+  },
+})

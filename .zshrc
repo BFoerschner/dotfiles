@@ -13,6 +13,7 @@ if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
   export PATH="$HOME/.cargo/bin:$PATH"
   export PATH="$HOME/.local/bin:$PATH"
   export EDITOR=nvim
+  export MANPAGER='nvim +Man!'
 
   # Set the directory we want to store zinit and plugins
   ZINIT_HOME="${HOME}/.local/share/zinit/zinit.git"
@@ -28,6 +29,10 @@ if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
 
   zinit light zsh-users/zsh-completions
   autoload -Uz compinit && compinit
+
+  # Terraform autocomplete
+    autoload -U +X bashcompinit && bashcompinit
+    complete -o nospace -C "$(which terraform)" terraform
 
   zinit snippet OMZL::git.zsh
   zinit snippet OMZP::git
@@ -74,6 +79,8 @@ if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
   setopt hist_find_no_dups
 
   alias gig='gi $(gi list &>/dev/null | tr "," "\n" | fzf)'
+  alias ..='cd ..'
+  alias rg="rg --hidden --glob '!.git'"
 
   export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --color=bg+:#293739,bg:#1B1D1E,border:#808080,spinner:#E6DB74,hl:#7E8E91,fg:#F8F8F2,header:#7E8E91,info:#A6E22E,pointer:#A6E22E,marker:#F92672,fg+:#F8F8F2,prompt:#F92672,hl+:#F92672"
   export FZF_CTRL_T_OPTS="
@@ -90,3 +97,4 @@ if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
   eval "$(oh-my-posh init zsh --config "$HOME"/.config/ohmyposh/zen.toml)"
   eval "$(fzf --zsh)"
 fi
+
