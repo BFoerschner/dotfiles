@@ -28,6 +28,10 @@ if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
   source "${ZINIT_HOME}/zinit.zsh"
 
   zinit light zsh-users/zsh-completions
+  zinit light zsh-users/zsh-syntax-highlighting
+  zinit light zsh-users/zsh-autosuggestions
+  zinit light Aloxaf/fzf-tab
+  zinit light birdhackor/zsh-eza-ls-plugin
   autoload -Uz compinit && compinit
 
   # Terraform autocomplete
@@ -53,11 +57,6 @@ if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
 
   # reload snippets every new shell
   zinit cdreplay -q
-
-  zinit light zsh-users/zsh-syntax-highlighting
-  zinit light zsh-users/zsh-autosuggestions
-  zinit light Aloxaf/fzf-tab
-  zinit light birdhackor/zsh-eza-ls-plugin
 
   # Completion styling
   zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
