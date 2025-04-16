@@ -50,7 +50,7 @@ wk.add({
     desc = "Copy code screenshot to clipboard",
   },
 })
-vim.keymap.set("n", "<leader><leader>v", function()
+vim.keymap.set("n", "<leader>vv", function()
   if next(require("diffview.lib").views) == nil then
     vim.cmd("DiffviewOpen")
   else
