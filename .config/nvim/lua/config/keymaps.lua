@@ -30,10 +30,6 @@ end, { desc = "Search and replace in selection" })
 local wk = require("which-key")
 wk.add({
   mode = { "v" },
-  { "<leader>t", group = "Transformations" },
-})
-wk.add({
-  mode = { "v" },
   { "<leader>s", group = "Silicon" },
   {
     "<leader>sc",
@@ -50,13 +46,6 @@ wk.add({
     desc = "Copy code screenshot to clipboard",
   },
 })
-vim.keymap.set("n", "<leader>vv", function()
-  if next(require("diffview.lib").views) == nil then
-    vim.cmd("DiffviewOpen")
-  else
-    vim.cmd("DiffviewClose")
-  end
-end)
 
 -- Diffview Keybindings
 local function toggle_diffview(cmd)
