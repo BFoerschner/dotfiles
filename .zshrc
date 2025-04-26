@@ -16,7 +16,7 @@ if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
   export MANPAGER='nvim +Man!'
 
   # Set the directory we want to store zinit and plugins
-  ZINIT_HOME="${HOME}/.local/share/zinit/zinit.git"
+  ZINIT_HOME="$HOME"/.local/share/zinit/zinit.git
 
   # Download Zinit, if it's not there yet
   if [ ! -d "$ZINIT_HOME" ]; then
@@ -34,29 +34,65 @@ if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
   zinit light birdhackor/zsh-eza-ls-plugin
   autoload -Uz compinit && compinit
 
-  # Terraform autocomplete
-    autoload -U +X bashcompinit && bashcompinit
-    complete -o nospace -C "$(which terraform)" terraform
+  # --- Initialize Zsh Completion System ---
+  autoload -Uz compinit
+  compinit
 
+  # --- Core OMZ Lib and Handy Plugins (still useful) ---
   zinit snippet OMZL::git.zsh
+
+  # Git aliases & helpers
   zinit snippet OMZP::git
+  zinit snippet OMZP::git-commit
+  zinit snippet OMZP::gitignore
+
+  # Quality-of-life helpers
   zinit snippet OMZP::sudo
   zinit snippet OMZP::archlinux
-  zinit snippet OMZP::aws
-  zinit snippet OMZP::kubectl
-  zinit snippet OMZP::kubectx
+  zinit snippet OMZP::brew
+  zinit snippet OMZP::extract
   zinit snippet OMZP::command-not-found
   zinit snippet OMZP::ansible
-  zinit snippet OMZP::brew
-  zinit snippet OMZP::docker/completions/_docker
-  zinit snippet OMZP::docker-compose
-  zinit snippet OMZP::extract
-  zinit snippet OMZP::gitignore
-  zinit snippet OMZP::git-commit
 
+  # Docker (includes docker compose, services, etc.)
+  if command -v docker &>/dev/null; then
+    source <(docker completion zsh)
+  fi
+
+  # AWS CLI completions
+  if command -v aws_completer &>/dev/null; then
+    complete -C "$(command -v aws_completer)" aws
+  fi
+
+  # kubectl completions
+  if command -v kubectl &>/dev/null; then
+    source <(kubectl completion zsh)
+  fi
+
+  # kubectx completions
+  if command -v kubectx &>/dev/null; then
+    source <(kubectx completion zsh)
+  fi
+
+  # kubens completions
+  if command -v kubens &>/dev/null; then
+    source <(kubens completion zsh)
+  fi
+
+  # --- Terraform Completion ---
+  if command -v terraform &>/dev/null; then
+    autoload -U +X bashcompinit && bashcompinit
+    complete -o nospace -C "$(which terraform)" terraform
+  fi
 
   # reload snippets every new shell
   zinit cdreplay -q
+
+  # This enables Zsh to understand commands like docker run -it ubuntu. However, by enabling this, this also makes 
+  # Zsh complete docker run -u<tab> with docker run -uapprox which is not valid. The users have to put the space or 
+  # the equal sign themselves before trying to complete.
+  zstyle ':completion:*:*:docker:*' option-stacking yes
+  zstyle ':completion:*:*:docker-*:*' option-stacking yes
 
   # Completion styling
   zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
@@ -99,4 +135,3 @@ if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
   eval "$(oh-my-posh init zsh --config "$HOME"/.config/ohmyposh/zen.toml)"
   eval "$(fzf --zsh)"
 fi
-
