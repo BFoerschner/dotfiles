@@ -5,6 +5,7 @@ fi
 
 # Environment Variables
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$HOME/go/bin:$PATH"
+export TERM=$TERM-256color
 export EDITOR=nvim
 export MANPAGER='nvim +Man!'
 export HISTSIZE=5000
