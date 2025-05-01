@@ -1,5 +1,7 @@
-# Skip loading for non-interactive shells
-[[ -z "$PS1" ]] && return
+# Skip setup for non-interactive shells *unless explicitly forced*
+if [[ -z "$PS1" && -z "${ZSHRC_FORCE_LOAD:-}" ]]; then
+  return
+fi
 
 # Environment Variables
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$HOME/go/bin:$PATH"
