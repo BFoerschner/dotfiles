@@ -69,40 +69,52 @@ fi
 # Docker completion (lazy-loaded)
 _docker_completions() {
   unfunction _docker_completions
-  source <(docker completion zsh)
+  if command -v docker &>/dev/null; then
+    source <(docker completion zsh)
+  fi
 }
 compdef _docker_completions docker
 
 # Kubectl completion
 _kubectl_completions() {
   unfunction _kubectl_completions
-  source <(kubectl completion zsh)
+  if command -v kubectl &>/dev/null; then
+    source <(kubectl completion zsh)
+  fi
 }
 compdef _kubectl_completions kubectl
 
 # kubectx
 _kubectx_completions() {
   unfunction _kubectx_completions
-  source <(kubectx completion zsh)
+  if command -v kubectx &>/dev/null; then
+    source <(kubectx completion zsh)
+  fi
 }
 compdef _kubectx_completions kubectx
 
 # kubens
 _kubens_completions() {
   unfunction _kubens_completions
-  source <(kubens completion zsh)
+  if command -v kubens &>/dev/null; then
+    source <(kubens completion zsh)
+  fi
 }
 compdef _kubens_completions kubens
 
 # AWS CLI
 if command -v aws_completer &>/dev/null; then
-  complete -C "$(command -v aws_completer)" aws
+  if command -v aws_completer &>/dev/null; then
+    complete -C "$(command -v aws_completer)" aws
+  fi
 fi
 
 # Terraform
 if command -v terraform &>/dev/null; then
   autoload -U +X bashcompinit && bashcompinit
-  complete -o nospace -C "$(command -v terraform)" terraform
+  if command -v terraform &>/dev/null; then
+    complete -o nospace -C "$(command -v terraform)" terraform
+  fi
 fi
 
 # Completion Styling
