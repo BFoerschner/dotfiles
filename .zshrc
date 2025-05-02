@@ -78,6 +78,14 @@ _docker_completions() {
 }
 compdef _docker_completions docker
 
+_uv_completions() {
+  unfunction _uv_completions
+  if command -v uv &>/dev/null; then
+    source <(uv generate-shell-completion zsh)
+  fi
+}
+compdef _uv_completions uv
+
 # Kubectl completion
 _kubectl_completions() {
   unfunction _kubectl_completions
