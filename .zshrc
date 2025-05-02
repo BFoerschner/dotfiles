@@ -69,7 +69,13 @@ fi
 
 # Completions/Compdefs
 
-# Docker completion (lazy-loaded)
+_bat_completions() {
+  if command -v bat &>/dev/null; then
+    source <(bat --completion zsh)
+  fi
+}
+compdef _bat_completions bat
+
 _docker_completions() {
   unfunction _docker_completions
   if command -v docker &>/dev/null; then
@@ -86,7 +92,6 @@ _uv_completions() {
 }
 compdef _uv_completions uv
 
-# Kubectl completion
 _kubectl_completions() {
   unfunction _kubectl_completions
   if command -v kubectl &>/dev/null; then
@@ -95,7 +100,6 @@ _kubectl_completions() {
 }
 compdef _kubectl_completions kubectl
 
-# kubectx
 _kubectx_completions() {
   unfunction _kubectx_completions
   if command -v kubectx &>/dev/null; then
@@ -104,7 +108,6 @@ _kubectx_completions() {
 }
 compdef _kubectx_completions kubectx
 
-# kubens
 _kubens_completions() {
   unfunction _kubens_completions
   if command -v kubens &>/dev/null; then
@@ -113,14 +116,12 @@ _kubens_completions() {
 }
 compdef _kubens_completions kubens
 
-# AWS CLI
 if command -v aws_completer &>/dev/null; then
   if command -v aws_completer &>/dev/null; then
     complete -C "$(command -v aws_completer)" aws
   fi
 fi
 
-# Terraform
 if command -v terraform &>/dev/null; then
   autoload -U +X bashcompinit && bashcompinit
   if command -v terraform &>/dev/null; then
@@ -168,3 +169,4 @@ eval "$(fzf --zsh)"
 
 # Ensure everything from zinit is truly loaded
 zinit cdreplay -q
+
