@@ -4,7 +4,12 @@ if [[ -z "$PS1" && -z "${ZSHRC_FORCE_LOAD:-}" ]]; then
 fi
 
 # Environment Variables
-export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$HOME/go/bin:$PATH"
+export PATH="$HOME/.local/share/fnm:$PATH"
+export PATH="/usr/bin/:$PATH"
+export PATH="/usr/local/bin/:$PATH"
+export PATH="/usr/local/go/bin:$PATH"
+export PATH="$HOME/.cargo/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
 export TERM=xterm-256color
 export EDITOR=nvim
 export MANPAGER='nvim +Man!'
