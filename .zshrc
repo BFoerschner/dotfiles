@@ -67,68 +67,6 @@ else
   compinit -C
 fi
 
-# Completions/Compdefs
-
-_bat_completions() {
-  if command -v bat &>/dev/null; then
-    source <(bat --completion zsh)
-  fi
-}
-compdef _bat_completions bat
-
-_docker_completions() {
-  unfunction _docker_completions
-  if command -v docker &>/dev/null; then
-    source <(docker completion zsh)
-  fi
-}
-compdef _docker_completions docker
-
-_uv_completions() {
-  unfunction _uv_completions
-  if command -v uv &>/dev/null; then
-    source <(uv generate-shell-completion zsh)
-  fi
-}
-compdef _uv_completions uv
-
-_kubectl_completions() {
-  unfunction _kubectl_completions
-  if command -v kubectl &>/dev/null; then
-    source <(kubectl completion zsh)
-  fi
-}
-compdef _kubectl_completions kubectl
-
-_kubectx_completions() {
-  unfunction _kubectx_completions
-  if command -v kubectx &>/dev/null; then
-    source <(kubectx completion zsh)
-  fi
-}
-compdef _kubectx_completions kubectx
-
-_kubens_completions() {
-  unfunction _kubens_completions
-  if command -v kubens &>/dev/null; then
-    source <(kubens completion zsh)
-  fi
-}
-compdef _kubens_completions kubens
-
-if command -v aws_completer &>/dev/null; then
-  if command -v aws_completer &>/dev/null; then
-    complete -C "$(command -v aws_completer)" aws
-  fi
-fi
-
-if command -v terraform &>/dev/null; then
-  autoload -U +X bashcompinit && bashcompinit
-  if command -v terraform &>/dev/null; then
-    complete -o nospace -C "$(command -v terraform)" terraform
-  fi
-fi
-
 # Completion Styling
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
