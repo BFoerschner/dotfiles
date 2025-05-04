@@ -4,7 +4,7 @@ if [[ -z "$PS1" && -z "${ZSHRC_FORCE_LOAD:-}" ]]; then
 fi
 
 # Environment Variables
-export GOPATH="$HOME/.local/go"
+export GOPATH="$HOME/.local/gopkg"
 export PATH="/usr/bin/:$PATH"
 export PATH="/usr/local/bin/:$PATH"
 export PATH="$HOME/.local/share/fnm:$PATH"
