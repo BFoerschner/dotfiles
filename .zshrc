@@ -19,6 +19,7 @@ export HISTFILE=~/.zsh_history
 export SAVEHIST=$HISTSIZE
 export HISTDUP=erase
 export GOPATH="$HOME/.local/share/go"
+eval "$(fnm env)"
 
 # History Options
 setopt \
