@@ -4,10 +4,12 @@ if [[ -z "$PS1" && -z "${ZSHRC_FORCE_LOAD:-}" ]]; then
 fi
 
 # Environment Variables
+export GOPATH="$HOME/.local/go"
 export PATH="/usr/bin/:$PATH"
 export PATH="/usr/local/bin/:$PATH"
 export PATH="$HOME/.local/share/fnm:$PATH"
 export PATH="$HOME/.local/share/go/bin:$PATH"
+export PATH="$GOPATH/bin:$PATH"
 export PATH="$HOME/.local/share/lua/bin:$PATH"
 export PATH="$HOME/.cargo/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
@@ -18,7 +20,6 @@ export HISTSIZE=5000
 export HISTFILE=~/.zsh_history
 export SAVEHIST=$HISTSIZE
 export HISTDUP=erase
-export GOPATH="$HOME/.local/share/go"
 eval "$(fnm env)"
 
 # History Options
