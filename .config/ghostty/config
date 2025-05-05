@@ -1,0 +1,19 @@
+keybind = global:cmd+`=toggle_visibility
+window-decoration = none
+fullscreen=true
+macos-non-native-fullscreen=visible-menu
+
+adjust-underline-position = 8
+adjust-underline-thickness = 1
+auto-update-channel = "tip"
+cursor-invert-fg-bg = true
+custom-shader-animation = "always"
+macos-option-as-alt = "true"
+mouse-hide-while-typing = "true"
+font-thicken = true
+alpha-blending = linear-corrected
+
+font-family = 0xProto
+font-feature = ss01
+
+theme = Monokai Soda
