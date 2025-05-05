@@ -86,15 +86,9 @@ zstyle ':completion:*:*:docker-*:*' option-stacking yes
 
 # FZF Configuration
 export FZF_DEFAULT_OPTS='--color=bg+:#293739,bg:#1B1D1E,border:#808080,spinner:#E6DB74,hl:#7E8E91,fg:#F8F8F2,header:#7E8E91,info:#A6E22E,pointer:#A6E22E,marker:#F92672,fg+:#F8F8F2,prompt:#F92672,hl+:#F92672'
-export FZF_DEFAULT_COMMAND="
-  fd 
-  --type f 
-  --color=never"
+export FZF_DEFAULT_COMMAND="fd --hidden --type f --color=never"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-export FZF_ALT_C_COMMAND="
-  fd 
-  --type d 
-  --color=never"
+export FZF_ALT_C_COMMAND="fd --hidden --type d --color=never"
 export FZF_CTRL_T_OPTS="
   --walker-skip .git,node_modules,target
   --preview='bat -n --color=always {}'
