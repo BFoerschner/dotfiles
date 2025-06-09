@@ -1,1 +1,4 @@
 .config/tmux/plugins
+.config/iterm2/
+.config/karabiner/automatic_backups/
+.config/lazygit/state.yml
