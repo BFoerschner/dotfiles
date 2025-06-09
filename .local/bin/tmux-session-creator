@@ -1,0 +1,21 @@
+#!/bin/bash
+# ~/.local/bin/tmux-session-creator
+# Helper script to create and switch to a new session
+
+SESSION_NUM=$1
+USER_INPUT=$2
+DEFAULT_SESSION_NAME="session-$SESSION_NUM"
+
+# Use user input if provided, otherwise use default
+if [ -n "$USER_INPUT" ] && [ "$USER_INPUT" != "" ]; then
+    session_name="$USER_INPUT"
+else
+    session_name="$DEFAULT_SESSION_NAME"
+fi
+
+# Save the mapping in tmux options
+tmux set-option -g "@session-$SESSION_NUM" "$session_name"
+
+# Create the session and switch to it
+tmux new-session -d -s "$session_name"
+tmux switch-client -t "$session_name"

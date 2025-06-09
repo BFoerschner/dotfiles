@@ -103,6 +103,7 @@ export FZF_ALT_C_OPTS="
 alias gig='gi $(gi list &>/dev/null | tr "," "\n" | fzf)'
 alias ..='cd ..'
 alias rg="rg --hidden --glob '!.git'"
+alias t="tmux new-session -A -s main"
 
 # Prompt & fzf
 eval "$(oh-my-posh init zsh --config "$HOME/.config/ohmyposh/zen.toml")"

@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# Script to show fzf session picker
+
+# Get all tmux sessions
+sessions=$(tmux list-sessions -F "#{session_name}" 2>/dev/null)
+
+# Check if there are any sessions
+if [ -z "$sessions" ]; then
+  echo "No tmux sessions found"
+  exit 1
+fi
+
+# Get current session name
+current_session=$(tmux display-message -p "#{session_name}" 2>/dev/null)
+
+# Use fzf to select a session
+selected_session=$(
+  echo "$sessions" | fzf \
+    --height=40% \
+    --reverse \
+    --border \
+    --header="Select tmux session (current: $current_session)" \
+    --header-first \
+    --prompt="Session> " \
+    --preview="tmux list-windows -t {} -F '#{window_index}: #{window_name} #{?window_active,(active),}'" \
+    --preview-window=right:50%
+)
+
+# If a session was selected, switch to it
+if [ -n "$selected_session" ]; then
+  if [ "$selected_session" != "$current_session" ]; then
+    tmux switch-client -t "$selected_session"
+  fi
+fi
