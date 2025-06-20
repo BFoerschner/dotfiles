@@ -111,4 +111,4 @@ eval "$(fzf --zsh)"
 
 # Ensure everything from zinit is truly loaded
 zinit cdreplay -q
-
+eval "$(direnv hook zsh)"
