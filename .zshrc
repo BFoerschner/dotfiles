@@ -68,6 +68,8 @@ zinit snippet OMZP::command-not-found
 zinit snippet OMZP::ansible
 
 # Completion Initialization
+gh completion -s zsh > /usr/local/share/zsh/site-functions/_gh
+
 autoload -Uz compinit
 zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
 if [[ ! -s "$zcompdump" || "$zcompdump" -ot "$ZDOTDIR/.zshrc" ]]; then
