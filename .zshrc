@@ -105,6 +105,7 @@ alias ..='cd ..'
 alias rg="rg --hidden --glob '!.git'"
 alias t="tmux new-session -A -s main"
 alias llm="llm"
+alias lg="lazygit"
 
 # Prompt & fzf
 eval "$(oh-my-posh init zsh --config "$HOME/.config/ohmyposh/zen.toml")"
