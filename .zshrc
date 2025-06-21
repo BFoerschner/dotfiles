@@ -68,7 +68,6 @@ zinit snippet OMZP::command-not-found
 zinit snippet OMZP::ansible
 
 # Completion Initialization
-gh completion -s zsh > /usr/local/share/zsh/site-functions/_gh
 
 autoload -Uz compinit
 zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
@@ -77,6 +76,11 @@ if [[ ! -s "$zcompdump" || "$zcompdump" -ot "$ZDOTDIR/.zshrc" ]]; then
 else
   compinit -C
 fi
+
+autoload -U +X bashcompinit && bashcompinit
+complete -o nospace -C /root/.local/gopkg/bin/terraform terraform
+gh completion -s zsh > /usr/local/share/zsh/site-functions/_gh
+
 
 # Completion Styling
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
@@ -116,3 +120,4 @@ eval "$(fzf --zsh)"
 # Ensure everything from zinit is truly loaded
 zinit cdreplay -q
 eval "$(direnv hook zsh)"
+
