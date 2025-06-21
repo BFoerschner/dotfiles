@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+gh repo list --json nameWithOwner --jq '.[].nameWithOwner' | fzf
