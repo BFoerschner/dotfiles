@@ -87,7 +87,6 @@
   # Merging helper
   ours   = !"f() { git checkout --ours   $@ && git add $@; }; f"
   theirs = !"f() { git checkout --theirs $@ && git add $@; }; f"
-
   cleanout = !git clean -df && git checkout -- .
   churn = !"f() { \
       git log \
@@ -99,15 +98,6 @@
       \"$@\" | \
       awk 'NF{a[$0]++}END{for(i in a){print a[i], i}}' | \
       sort -rn; \
-  }; f"
-  reincarnate = !"f() { \
-      [[ -n $@ ]] && \
-      git checkout \"$@\" && \
-      git unpublish && \
-      git checkout main && \
-      git branch -D \"$@\" && \
-      git checkout -b \"$@\" && \
-      git publish; \
   }; f"
 	wip = !"git add -A; git ls-files --deleted -z | xargs -0 git rm; git commit -m \"wip\""
 	unwip = !"git log -n 1 | grep -q -c wip && git reset HEAD~1"
