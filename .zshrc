@@ -67,20 +67,14 @@ zinit snippet OMZP::extract
 zinit snippet OMZP::command-not-found
 zinit snippet OMZP::ansible
 
-# Completion Initialization
 
-autoload -Uz compinit
-zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
-if [[ ! -s "$zcompdump" || "$zcompdump" -ot "$ZDOTDIR/.zshrc" ]]; then
-  compinit -i
-else
-  compinit -C
-fi
-
+# terraform completions
 autoload -U +X bashcompinit && bashcompinit
 complete -o nospace -C /root/.local/gopkg/bin/terraform terraform
-gh completion -s zsh > /usr/local/share/zsh/site-functions/_gh
 
+zinit wait lucid for \
+  atload"zicompinit; zicdreplay" \
+    zsh-users/zsh-completions
 
 # Completion Styling
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
@@ -117,7 +111,11 @@ alias lg="lazygit"
 eval "$(oh-my-posh init zsh --config "$HOME/.config/ohmyposh/zen.toml")"
 eval "$(fzf --zsh)"
 
+if command -v -- "direnv" > /dev/null 2>&1; then
+  eval "$(direnv hook zsh)"
+fi
+
 # Ensure everything from zinit is truly loaded
 zinit cdreplay -q
-eval "$(direnv hook zsh)"
+
 
