@@ -40,6 +40,10 @@ if [[ "$TERM_PROGRAM" != "Apple_Terminal" && -x "$(command -v brew)" ]]; then
   done
 fi
 
+# Tmux xpanes
+source "$HOME"/.local/pkg/tmux-xpanes/activate.sh
+source "$HOME"/.local/pkg/tmux-xpanes/completion.zsh
+
 # Zinit
 ZINIT_HOME="$HOME/.local/share/zinit/zinit.git"
 if [[ ! -d "$ZINIT_HOME" ]]; then
@@ -49,7 +53,6 @@ fi
 source "$ZINIT_HOME/zinit.zsh"
 
 # Zinit Plugins
-zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-syntax-highlighting
 zinit light zsh-users/zsh-autosuggestions
 zinit light Aloxaf/fzf-tab
@@ -72,8 +75,14 @@ zinit snippet OMZP::ansible
 autoload -U +X bashcompinit && bashcompinit
 complete -o nospace -C /root/.local/gopkg/bin/terraform terraform
 
+# tool completions
+eval "$(fnm completions --shell zsh)"
+eval "$(uv generate-shell-completion zsh)"
+eval "$(yq shell-completion zsh)"
+eval "$(kubectl completion zsh)"
+
 zinit wait lucid for \
-  atload"zicompinit; zicdreplay" \
+    as"completion" \
     zsh-users/zsh-completions
 
 # Completion Styling
@@ -115,7 +124,15 @@ if command -v -- "direnv" > /dev/null 2>&1; then
   eval "$(direnv hook zsh)"
 fi
 
-# Ensure everything from zinit is truly loaded
-zinit cdreplay -q
+zicompinit_fast() {
+    local zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
+    if [[ -n ${zcompdump}(#qN.mh+24) ]]; then
+        zicompinit -d "$zcompdump"
+    else
+        zicompinit -C -d "$zcompdump"
+    fi
+}
 
-
+zinit wait'1' lucid for \
+    atload"zicompinit_fast; zicdreplay" \
+    zdharma-continuum/null
