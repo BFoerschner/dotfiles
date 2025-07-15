@@ -1,26 +1,31 @@
-# Skip setup for non-interactive shells *unless explicitly forced*
+# Skip setup for non-interactive shells *unless explicitly forced
 if [[ -z "$PS1" && -z "${ZSHRC_FORCE_LOAD:-}" ]]; then
   return
 fi
 
 # Environment Variables
 export GOPATH="$HOME/.local/gopkg"
-export PATH="/usr/bin/:$PATH"
-export PATH="/usr/local/bin/:$PATH"
-export PATH="$HOME/.local/share/fnm:$PATH"
-export PATH="$HOME/.local/share/go/bin:$PATH"
-export PATH="$GOPATH/bin:$PATH"
-export PATH="$HOME/.local/share/lua/bin:$PATH"
-export PATH="$HOME/.cargo/bin:$PATH"
-export PATH="$HOME/.local/bin:$PATH"
-export TERM=xterm-256color
 export EDITOR=nvim
 export MANPAGER='nvim +Man!'
+export TERM=xterm-256color
 export HISTSIZE=5000
 export HISTFILE=~/.zsh_history
 export SAVEHIST=$HISTSIZE
 export HISTDUP=erase
-eval "$(fnm env)"
+
+# Build PATH efficiently
+typeset -U path  # Ensures unique entries
+path=(
+  /usr/bin
+  /usr/local/bin
+  $HOME/.local/share/fnm
+  $HOME/.local/share/go/bin
+  $GOPATH/bin
+  $HOME/.local/share/lua/bin
+  $HOME/.cargo/bin
+  $HOME/.local/bin
+  $path
+)
 
 # History Options
 setopt \
@@ -32,58 +37,58 @@ setopt \
 	hist_ignore_dups \
 	hist_find_no_dups
 
-# Homebrew
+# Cache Homebrew prefix and paths (only if available and not Apple Terminal)
 if [[ "$TERM_PROGRAM" != "Apple_Terminal" && -x "$(command -v brew)" ]]; then
-  HOMEBREW_PREFIX=$(brew --prefix)
-  for d in "${HOMEBREW_PREFIX}"/opt/*/libexec/gnubin; do
-    export PATH="$d:$PATH"
+  if [[ -z "$HOMEBREW_PREFIX" ]]; then
+    export HOMEBREW_PREFIX=$(brew --prefix)
+  fi
+  # Only add existing GNU bin directories
+  for d in "${HOMEBREW_PREFIX}"/opt/{coreutils,findutils,gnu-tar,gnu-sed,gawk,gnutls,gnu-indent,gnu-getopt}/libexec/gnubin; do
+    [[ -d "$d" ]] && path=("$d" "${path[@]}")
   done
 fi
+
+# Zinit (lazy initialization with better error handling)
+ZINIT_HOME="$HOME/.local/share/zinit/zinit.git"
+if [[ ! -d "$ZINIT_HOME" ]]; then
+  print -P "%F{blue}Installing Zinit...%f"
+  mkdir -p "$(dirname "$ZINIT_HOME")"
+  if git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"; then
+    print -P "%F{green}Zinit installed successfully%f"
+  else
+    print -P "%F{red}Failed to install Zinit%f"
+    return 1
+  fi
+fi
+source "$ZINIT_HOME/zinit.zsh"
+
+# Load plugins asynchronously with wait since these take way too long to load
+zinit wait lucid for \
+  atload"zicompinit; zicdreplay" blockf \
+    zsh-users/zsh-completions \
+  atinit"ZINIT[COMPINIT_OPTS]=-C; zicompinit; zicdreplay" \
+    zdharma-continuum/fast-syntax-highlighting \
+  atload"!_zsh_autosuggest_start" \
+    zsh-users/zsh-autosuggestions \
+  Aloxaf/fzf-tab \
+  birdhackor/zsh-eza-ls-plugin
 
 # Tmux xpanes
 source "$HOME"/.local/pkg/tmux-xpanes/activate.sh
 source "$HOME"/.local/pkg/tmux-xpanes/completion.zsh
 
-# Zinit
-ZINIT_HOME="$HOME/.local/share/zinit/zinit.git"
-if [[ ! -d "$ZINIT_HOME" ]]; then
-  mkdir -p "$(dirname "$ZINIT_HOME")"
-  git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
-fi
-source "$ZINIT_HOME/zinit.zsh"
-
-# Zinit Plugins
-zinit light zsh-users/zsh-syntax-highlighting
-zinit light zsh-users/zsh-autosuggestions
-zinit light Aloxaf/fzf-tab
-zinit light birdhackor/zsh-eza-ls-plugin
-
 # OMZ plugin snippets
-zinit snippet OMZL::git.zsh
-zinit snippet OMZP::git
-zinit snippet OMZP::git-commit
-zinit snippet OMZP::gitignore
-zinit snippet OMZP::sudo
-zinit snippet OMZP::archlinux
-zinit snippet OMZP::brew
-zinit snippet OMZP::extract
-zinit snippet OMZP::command-not-found
-zinit snippet OMZP::ansible
-
-
-# terraform completions
-autoload -U +X bashcompinit && bashcompinit
-complete -o nospace -C /root/.local/gopkg/bin/terraform terraform
-
-# tool completions
-eval "$(fnm completions --shell zsh)"
-eval "$(uv generate-shell-completion zsh)"
-eval "$(yq shell-completion zsh)"
-eval "$(kubectl completion zsh)"
-
 zinit wait lucid for \
-    as"completion" \
-    zsh-users/zsh-completions
+  OMZL::git.zsh \
+  OMZP::git \
+  OMZP::git-commit \
+  OMZP::gitignore \
+  OMZP::sudo \
+  OMZP::archlinux \
+  OMZP::brew \
+  OMZP::extract \
+  OMZP::command-not-found \
+  OMZP::ansible
 
 # Completion Styling
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
@@ -99,14 +104,17 @@ export FZF_DEFAULT_COMMAND="fd --hidden --type f --color=never"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_ALT_C_COMMAND="fd --hidden --type d --color=never"
 export FZF_CTRL_T_OPTS="
-  --walker-skip .git,node_modules,target
-  --preview='bat -n --color=always {}'
+  --walker-skip .git,node_modules,target,.next,dist,build
+  --preview='([[ -f {} ]] && (bat --style=numbers --color=always {} || cat {})) || ([[ -d {} ]] && (tree -C {} | head -200))'
   --tmux=80%
   --bind='ctrl-/:change-preview-window(down|hidden|)'"
 export FZF_ALT_C_OPTS="
-  --walker-skip .git,node_modules,target
+  --walker-skip .git,node_modules,target,.next,dist,build
   --tmux=80%
   --preview='tree -C {}'"
+
+# Load FZF key bindings (Ctrl+T / Alt+C)
+eval "$(fzf --zsh)"
 
 # Aliases
 alias gig='gi $(gi list &>/dev/null | tr "," "\n" | fzf)'
@@ -116,23 +124,48 @@ alias t="tmux new-session -A -s main"
 alias llm="llm"
 alias lg="lazygit"
 
-# Prompt & fzf
-eval "$(oh-my-posh init zsh --config "$HOME/.config/ohmyposh/zen.toml")"
-eval "$(fzf --zsh)"
+# Enhanced aliases (only add if tools are available)
+if command -v eza > /dev/null 2>&1; then
+  alias ls='eza --icons --git'
+  alias ll='eza -l --icons --git'
+  alias la='eza -la --icons --git'
+  alias tree='eza --tree --icons'
+fi
 
-if command -v -- "direnv" > /dev/null 2>&1; then
+if command -v bat > /dev/null 2>&1; then
+  alias cat='bat --paging=never'
+fi
+
+if command -v fd > /dev/null 2>&1; then
+  alias find='fd'
+fi
+
+if command -v dust > /dev/null 2>&1; then
+  alias du='dust'
+fi
+
+if command -v duf > /dev/null 2>&1; then
+  alias df='duf'
+fi
+
+if command -v procs > /dev/null 2>&1; then
+  alias ps='procs'
+fi
+
+# Cache starship init for faster startup (even though starship already fast af)
+if command -v starship > /dev/null 2>&1; then
+  if [[ ! -f ~/.cache/starship-init.zsh || ~/.zshrc -nt ~/.cache/starship-init.zsh ]]; then
+    mkdir -p ~/.cache
+    starship init zsh > ~/.cache/starship-init.zsh
+  fi
+  source ~/.cache/starship-init.zsh
+fi
+
+# Load direnv synchronously (needed for proper functionality)
+if command -v direnv > /dev/null 2>&1; then
   eval "$(direnv hook zsh)"
 fi
 
-zicompinit_fast() {
-    local zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
-    if [[ -n ${zcompdump}(#qN.mh+24) ]]; then
-        zicompinit -d "$zcompdump"
-    else
-        zicompinit -C -d "$zcompdump"
-    fi
-}
-
-zinit wait'1' lucid for \
-    atload"zicompinit_fast; zicdreplay" \
-    zdharma-continuum/null
+# Reduce completion system overhead
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path ~/.cache/.zcompcache
