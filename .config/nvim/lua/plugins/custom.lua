@@ -264,6 +264,9 @@ return {
       scroll = { enabled = false },
     },
   },
+  {
+    "mg979/vim-visual-multi",
+  },
   { -- add any tools you want to have installed below
     "williamboman/mason.nvim",
     opts = {
