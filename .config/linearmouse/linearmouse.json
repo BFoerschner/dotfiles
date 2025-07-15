@@ -1,0 +1,67 @@
+{
+  "schemes" : [
+    {
+      "pointer" : {
+        "acceleration" : 0.2,
+        "disableAcceleration" : true
+      },
+      "buttons" : {
+        "universalBackForward" : true
+      },
+      "scrolling" : {
+        "reverse" : {
+          "vertical" : true
+        },
+        "distance" : {
+          "vertical" : 4
+        },
+        "acceleration" : {
+          "vertical" : 1
+        },
+        "speed" : {
+          "vertical" : 0
+        },
+        "modifiers" : {
+          "vertical" : {
+            "shift" : {
+              "type" : "alterOrientation"
+            },
+            "command" : {
+              "type" : "preventDefault"
+            },
+            "option" : {
+              "type" : "changeSpeed",
+              "scale" : 2
+            },
+            "control" : {
+              "type" : "zoom"
+            }
+          }
+        }
+      },
+      "if" : {
+        "device" : {
+          "vendorID" : "0x1532",
+          "productID" : "0xc1",
+          "productName" : "Razer Viper V3 Pro",
+          "category" : "mouse"
+        }
+      }
+    },
+    {
+      "pointer" : {
+        "acceleration" : 0.25
+      },
+      "if" : {
+        "app" : "app.zen-browser.zen",
+        "device" : {
+          "category" : "mouse",
+          "productName" : "Razer Viper V3 Pro",
+          "productID" : "0xc1",
+          "vendorID" : "0x1532"
+        }
+      }
+    }
+  ],
+  "$schema" : "https:\/\/schema.linearmouse.app\/0.10.0"
+}
