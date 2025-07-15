@@ -73,6 +73,10 @@ zinit wait lucid for \
   Aloxaf/fzf-tab \
   birdhackor/zsh-eza-ls-plugin
 
+# Tmux xpanes
+source "$HOME"/.local/pkg/tmux-xpanes/activate.sh
+source "$HOME"/.local/pkg/tmux-xpanes/completion.zsh
+
 # OMZ plugin snippets
 zinit wait lucid for \
   OMZL::git.zsh \
