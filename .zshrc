@@ -166,6 +166,10 @@ if command -v direnv > /dev/null 2>&1; then
   eval "$(direnv hook zsh)"
 fi
 
+if command -v fnm > /dev/null 2>&1; then
+  eval "$(fnm env)"
+fi
+
 # Reduce completion system overhead
 zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path ~/.cache/.zcompcache
