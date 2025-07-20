@@ -114,7 +114,9 @@ export FZF_ALT_C_OPTS="
   --preview='tree -C {}'"
 
 # Load FZF key bindings (Ctrl+T / Alt+C)
-eval "$(fzf --zsh)"
+if command -v fzf > /dev/null 2>&1; then
+  eval "$(fzf --zsh)"
+fi
 
 # Aliases
 alias gig='gi $(gi list &>/dev/null | tr "," "\n" | fzf)'
