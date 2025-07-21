@@ -154,6 +154,10 @@ if command -v procs > /dev/null 2>&1; then
   alias ps='procs'
 fi
 
+if command -v fnm > /dev/null 2>&1; then
+  eval "$(fnm env)"
+fi
+
 # Cache starship init for faster startup (even though starship already fast af)
 if command -v starship > /dev/null 2>&1; then
   if [[ ! -f ~/.cache/starship-init.zsh || ~/.zshrc -nt ~/.cache/starship-init.zsh ]]; then
@@ -175,3 +179,4 @@ fi
 # Reduce completion system overhead
 zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path ~/.cache/.zcompcache
+
