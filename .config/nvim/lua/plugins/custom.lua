@@ -1,28 +1,5 @@
 return {
   {
-    "nvim-treesitter/nvim-treesitter",
-    opts = {
-      ensure_installed = {
-        "bash",
-        "html",
-        "javascript",
-        "go",
-        "json",
-        "lua",
-        "markdown",
-        "markdown_inline",
-        "python",
-        "query",
-        "regex",
-        "tsx",
-        "typescript",
-        "vim",
-        "yaml",
-        "sql",
-      },
-    },
-  },
-  {
     "nvim-tree/nvim-tree.lua",
     opts = {},
     config = function(_, opts)
@@ -537,5 +514,56 @@ return {
       fuzzy = { implementation = "prefer_rust_with_warning" },
     },
     opts_extend = { "sources.default" },
+  },
+  {
+    "WhoIsSethDaniel/mason-tool-installer.nvim",
+    opts = {
+      ensure_installed = {
+        -- Language Servers
+        "docker-compose-language-service",
+        "tailwindcss-language-server",
+        "dockerfile-language-server",
+        "yaml-language-server",
+        "bash-language-server",
+        "vue-language-server",
+        "lua-language-server",
+        "terraform-ls",
+        "eslint-lsp",
+        "json-lsp",
+        "pyright",
+        "lemminx",
+        "vtsls",
+        "gopls",
+        "ruff",
+        "ansiblels",
+        "svelte",
+        "marksman",
+
+        -- Debug Adapters
+        "js-debug-adapter",
+        "codelldb",
+        "delve",
+
+        -- Linters
+        "shellcheck",
+        "hadolint",
+        "tflint",
+        "markdownlint-cli2",
+
+        -- Formatters
+        "prettier",
+        "black",
+        "stylua",
+        "shfmt",
+        "goimports",
+        "gofumpt",
+
+        -- Utilities
+        "markdown-toc",
+      },
+      auto_update = true,
+      run_on_start = false,
+      debounce_hours = 24,
+    },
   },
 }
