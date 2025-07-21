@@ -13,6 +13,15 @@ return {
     end,
   },
   {
+    "echasnovski/mini.pairs",
+    enabled = false,
+  },
+  {
+    "windwp/nvim-autopairs",
+    event = "InsertEnter",
+    config = true,
+  },
+  {
     "christoomey/vim-tmux-navigator",
     cmd = {
       "TmuxNavigateLeft",
@@ -71,7 +80,7 @@ return {
     lazy = false,
     priority = 1000,
     opts = {
-      dark_style_background = "dark", -- default, dark, transparent, #color
+      dark_style_background = "transparent", -- default, dark, transparent, #color
       light_style_background = "default", -- default, dark, transparent, #color
       color_headers = true, -- Enable header colors for each header level (h1, h2, etc.)
       lualine_bold = true, -- Lualine a and z sections font width
@@ -97,56 +106,12 @@ return {
       require("monokai-nightasty").load(opts)
     end,
   },
-  {
-    "codethread/qmk.nvim",
-    config = function()
-      ---@type qmk.UserConfig
-      local conf = {
-        name = "LAYOUT_CORNE_SPLIT",
-        variant = "zmk",
-        layout = {
-          "_ x x x x x x _ x x x x x x",
-          "_ x x x x x x _ x x x x x x",
-          "_ x x x x x x _ x x x x x x",
-          "_ _ _ _ x x x _ x x x _ _ _",
-        },
-      }
-      require("qmk").setup(conf)
-
-      vim.api.nvim_create_autocmd({ "BufWritePre" }, {
-        pattern = "*.keymap",
-        command = "QMKFormat",
-      })
-    end,
-  },
-  {
-    "kevinhwang91/nvim-ufo",
-    requires = "kevinhwang91/promise-async",
-    setup = function()
-      vim.o.foldcolumn = "1" -- '0' is not bad
-      vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
-      vim.o.foldlevelstart = 99
-      vim.o.foldenable = true
-
-      -- Using ufo provider need remap `zR` and `zM`. If Neovim is 0.6.1, remap yourself
-      vim.keymap.set("n", "zR", require("ufo").openAllFolds)
-      vim.keymap.set("n", "zM", require("ufo").closeAllFolds)
-
-      local capabilities = vim.lsp.protocol.make_client_capabilities()
-      capabilities.textDocument.foldingRange = {
-        dynamicRegistration = false,
-        lineFoldingOnly = true,
-      }
-      local language_servers = vim.lsp.get_clients() -- or list servers manually like {'gopls', 'clangd'}
-      for _, ls in ipairs(language_servers) do
-        require("lspconfig")[ls].setup({
-          capabilities = capabilities,
-          -- you can add other fields for setting up lsp server in this table
-        })
-      end
-      require("ufo").setup()
-    end,
-  },
+  -- {
+  --   "LazyVim/LazyVim",
+  --   opts = {
+  --     colorscheme = "catppuccin",
+  --   },
+  -- },
   {
     "echasnovski/mini.indentscope",
     opts = {
@@ -191,57 +156,6 @@ return {
     "sindrets/diffview.nvim",
   },
   {
-    "hrsh7th/nvim-cmp",
-    dependencies = {
-      "hrsh7th/cmp-emoji",
-    },
-    ---@param opts cmp.ConfigSchema
-    opts = function(_, opts)
-      local has_words_before = function()
-        unpack = unpack or table.unpack
-        local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-        return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
-      end
-
-      local luasnip = require("luasnip")
-      local cmp = require("cmp")
-
-      luasnip.config.set_config({
-        region_check_events = "InsertEnter",
-        delete_check_events = "InsertLeave",
-      })
-      opts.preselect = cmp.PreselectMode.None
-      opts.completion = {
-        completeopt = "noselect",
-      }
-      opts.mapping = vim.tbl_extend("force", opts.mapping, {
-        ["<Tab>"] = cmp.mapping(function(fallback)
-          if cmp.visible() then
-            -- cmp.select_next_item()
-            cmp.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = true })
-            -- You could replace the expand_or_jumpable() calls with expand_or_locally_jumpable()
-            -- this way you will only jump inside the snippet region
-          elseif luasnip.expand_or_jumpable() then
-            luasnip.expand_or_jump()
-          elseif has_words_before() then
-            cmp.complete()
-          else
-            fallback()
-          end
-        end, { "i", "s" }),
-        ["<S-Tab>"] = cmp.mapping(function(fallback)
-          if cmp.visible() then
-            cmp.select_prev_item()
-          elseif luasnip.jumpable(-1) then
-            luasnip.jump(-1)
-          else
-            fallback()
-          end
-        end, { "i", "s" }),
-      })
-    end,
-  },
-  {
     "folke/snacks.nvim",
     opts = {
       scroll = { enabled = false },
@@ -273,15 +187,15 @@ return {
       },
     },
   },
-  {
-    "yochem/jq-playground.nvim",
-    opts = {
-      cmd = { "yq" },
-    },
-  },
   { "akinsho/bufferline.nvim", enabled = false },
   { "nvim-neo-tree/neo-tree.nvim", enabled = false },
   { "folke/flash.nvim", enabled = false },
+  { "MeanderingProgrammer/render-markdown.nvim", enabled = false },
+  {
+    "nvim-treesitter/nvim-treesitter",
+    dependencies = { "OXY2DEV/markview.nvim" },
+    lazy = false,
+  },
   {
     "jellydn/hurl.nvim",
     dependencies = {
@@ -384,19 +298,81 @@ return {
   { "nvim-tree/nvim-web-devicons", opts = {} },
   { "onsails/lspkind.nvim" },
   {
+    "supermaven-inc/supermaven-nvim",
+    event = "InsertEnter",
+    cmd = {
+      "SupermavenUsePro",
+    },
+    opts = {
+      keymaps = {
+        accept_suggestion = "<C-l>",
+        accept_word = "<C-j>",
+      },
+      log_level = "off",
+      disable_inline_completion = false,
+      ignore_filetypes = { "bigfile", "snacks_input", "snacks_notif" },
+    },
+  },
+  {
+    "utilyre/barbecue.nvim",
+    name = "barbecue",
+    version = "*",
+    dependencies = {
+      "SmiteshP/nvim-navic",
+      "nvim-tree/nvim-web-devicons", -- optional dependency
+    },
+  },
+  {
+    "nvim-zh/colorful-winsep.nvim",
+    config = true,
+    event = { "WinLeave" },
+  },
+  {
+    "catppuccin/nvim",
+    name = "catppuccin",
+    opts = {
+      flavour = "mocha",
+      integrations = {
+        blink_cmp = true,
+        grug_far = true,
+        markview = true,
+        mason = true,
+        gitsigns = {
+          enabled = true,
+          -- align with the transparent_background option by default
+          transparent = false,
+        },
+        colorful_winsep = {
+          enabled = false,
+          color = "red",
+        },
+        diffview = true,
+        barbecue = {
+          dim_dirname = true, -- directory name is dimmed by default
+          bold_basename = true,
+          dim_context = false,
+          alt_background = false,
+        },
+        nvimtree = true,
+        treesitter = true,
+        notify = false,
+        mini = {
+          enabled = true,
+          indentscope_color = "",
+        },
+      },
+    },
+  },
+  {
     "saghen/blink.cmp",
     -- optional: provides snippets for the snippet source
-    dependencies = "rafamadriz/friendly-snippets",
+    dependencies = {
+      { "rafamadriz/friendly-snippets" },
+    },
 
     -- use a release tag to download pre-built binaries
     version = "*",
-    -- AND/OR build from source, requires nightly: https://rust-lang.github.io/rustup/concepts/channels.html#working-with-nightly-rust
     build = "cargo build --release",
-    -- If you use nix, you can build from source using latest nightly rust with:
-    -- build = 'nix run .#build-plugin',
-
-    ---@module 'blink.cmp'
-    ---@type blink.cmp.Config
     opts = {
       -- 'default' (recommended) for mappings similar to built-in completions (C-y to accept, C-n/C-p for up/down)
       -- 'super-tab' for mappings similar to vscode (tab to accept, arrow keys for up/down)
@@ -408,12 +384,15 @@ return {
       -- C-k: Toggle signature help
       --
       -- See the full "keymap" documentation for information on defining your own keymap.
-      -- keymap = { preset = "enter" },
       keymap = {
-        ["<C-space>"] = { "show", "show_documentation", "hide_documentation" },
+        ["<C-k>"] = { "show", "show_documentation", "hide_documentation" },
         ["<C-e>"] = { "hide", "fallback" },
         ["<CR>"] = { "accept", "fallback" },
 
+        ["<C-l>"] = {
+          LazyVim.cmp.map({ "ai_accept" }),
+          "fallback",
+        },
         ["<Tab>"] = {
           function(cmp)
             return cmp.select_next()
@@ -431,15 +410,28 @@ return {
 
         ["<Up>"] = { "select_prev", "fallback" },
         ["<Down>"] = { "select_next", "fallback" },
-        ["<C-p>"] = { "select_prev", "fallback" },
-        ["<C-n>"] = { "select_next", "fallback" },
         ["<C-up>"] = { "scroll_documentation_up", "fallback" },
         ["<C-down>"] = { "scroll_documentation_down", "fallback" },
       },
 
       completion = {
+        list = {
+          preselect = false,
+        },
+        ghost_text = {
+          enabled = true,
+          hl = "Comment",
+          auto_snippet = false,
+        },
+        accept = {
+          auto_brackets = {
+            enabled = true,
+          },
+        },
         menu = {
           border = "rounded",
+          auto_show = true,
+          max_height = 20,
           cmdline_position = function()
             if vim.g.ui_cmdline_pos ~= nil then
               local pos = vim.g.ui_cmdline_pos -- (1, 0)-indexed
@@ -486,17 +478,20 @@ return {
             },
           },
         },
-        documentation = { window = { border = "rounded" } },
+        documentation = {
+          auto_show = true,
+          auto_show_delay_ms = 0,
+          window = {
+            border = "rounded",
+          },
+        },
       },
       signature = {
         enabled = true,
         window = { border = "rounded" },
       },
       appearance = {
-        -- Sets the fallback highlight groups to nvim-cmp's highlight groups
-        -- Useful for when your theme doesn't support blink.cmp
-        -- Will be removed in a future release
-        use_nvim_cmp_as_default = true,
+        use_nvim_cmp_as_default = false,
         -- Set to 'mono' for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
         -- Adjusts spacing to ensure icons are aligned
         nerd_font_variant = "mono",
@@ -506,6 +501,16 @@ return {
       -- elsewhere in your config, without redefining it, due to `opts_extend`
       sources = {
         default = { "lsp", "path", "snippets", "buffer" },
+        per_filetype = {
+          sql = { "dadbod" },
+          -- optionally inherit from the `default` sources
+          lua = { inherit_defaults = true, "lazydev" },
+        },
+        providers = {
+          dadbod = { module = "vim_dadbod_completion.blink" },
+          lazydev = { ... },
+          lsp = { ... },
+        },
       },
 
       snippets = {
@@ -548,6 +553,7 @@ return {
         -- Debug Adapters
         "js-debug-adapter",
         "codelldb",
+        "debugpy",
         "delve",
 
         -- Linters
