@@ -267,17 +267,6 @@ return {
   {
     "mg979/vim-visual-multi",
   },
-  { -- add any tools you want to have installed below
-    "williamboman/mason.nvim",
-    opts = {
-      ensure_installed = {
-        "lemminx",
-        "stylua",
-        "shellcheck",
-        "shfmt",
-      },
-    },
-  },
   {
     "folke/snacks.nvim",
     opts = {
