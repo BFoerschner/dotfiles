@@ -388,11 +388,6 @@ return {
         ["<C-k>"] = { "show", "show_documentation", "hide_documentation" },
         ["<C-e>"] = { "hide", "fallback" },
         ["<CR>"] = { "accept", "fallback" },
-
-        ["<C-l>"] = {
-          LazyVim.cmp.map({ "ai_accept" }),
-          "fallback",
-        },
         ["<Tab>"] = {
           function(cmp)
             return cmp.select_next()
@@ -415,13 +410,8 @@ return {
       },
 
       completion = {
-        list = {
-          preselect = false,
-        },
         ghost_text = {
           enabled = true,
-          hl = "Comment",
-          auto_snippet = false,
         },
         accept = {
           auto_brackets = {
