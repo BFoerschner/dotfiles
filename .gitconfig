@@ -53,6 +53,7 @@
   fa = fetch --all
   fp = fetch --prune
   fav = fetch --all --verbose
+  ghc = !gh repo clone $(gh-list)
   lg = log --graph
   lo = log --oneline
   lor = log --oneline --reverse
