@@ -17,11 +17,6 @@ return {
     enabled = false,
   },
   {
-    "windwp/nvim-autopairs",
-    event = "InsertEnter",
-    config = true,
-  },
-  {
     "christoomey/vim-tmux-navigator",
     cmd = {
       "TmuxNavigateLeft",
@@ -70,11 +65,9 @@ return {
   {
     "stevearc/oil.nvim",
     opts = {},
-    -- Optional dependencies
-    dependencies = { { "echasnovski/mini.icons", opts = {} } },
-    -- dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if prefer nvim-web-devicons
+    -- dependencies = { { "echasnovski/mini.icons", opts = {} } },
+    dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if prefer nvim-web-devicons
   },
-  -- { "MeanderingProgrammer/render-markdown.nvim", enabled = false },
   {
     "polirritmico/monokai-nightasty.nvim",
     lazy = false,
@@ -106,12 +99,6 @@ return {
       require("monokai-nightasty").load(opts)
     end,
   },
-  -- {
-  --   "LazyVim/LazyVim",
-  --   opts = {
-  --     colorscheme = "catppuccin",
-  --   },
-  -- },
   {
     "echasnovski/mini.indentscope",
     opts = {
@@ -306,7 +293,7 @@ return {
     opts = {
       keymaps = {
         accept_suggestion = "<C-l>",
-        accept_word = "<C-j>",
+        accept_word = "<C-M-l>",
       },
       log_level = "off",
       disable_inline_completion = false,
@@ -326,42 +313,6 @@ return {
     "nvim-zh/colorful-winsep.nvim",
     config = true,
     event = { "WinLeave" },
-  },
-  {
-    "catppuccin/nvim",
-    name = "catppuccin",
-    opts = {
-      flavour = "mocha",
-      integrations = {
-        blink_cmp = true,
-        grug_far = true,
-        markview = true,
-        mason = true,
-        gitsigns = {
-          enabled = true,
-          -- align with the transparent_background option by default
-          transparent = false,
-        },
-        colorful_winsep = {
-          enabled = false,
-          color = "red",
-        },
-        diffview = true,
-        barbecue = {
-          dim_dirname = true, -- directory name is dimmed by default
-          bold_basename = true,
-          dim_context = false,
-          alt_background = false,
-        },
-        nvimtree = true,
-        treesitter = true,
-        notify = false,
-        mini = {
-          enabled = true,
-          indentscope_color = "",
-        },
-      },
-    },
   },
   {
     "saghen/blink.cmp",
@@ -385,23 +336,12 @@ return {
       --
       -- See the full "keymap" documentation for information on defining your own keymap.
       keymap = {
-        ["<C-k>"] = { "show", "show_documentation", "hide_documentation" },
-        ["<C-e>"] = { "hide", "fallback" },
+        preset = "none",
+
         ["<CR>"] = { "accept", "fallback" },
-        ["<Tab>"] = {
-          function(cmp)
-            return cmp.select_next()
-          end,
-          "snippet_forward",
-          "fallback",
-        },
-        ["<S-Tab>"] = {
-          function(cmp)
-            return cmp.select_prev()
-          end,
-          "snippet_backward",
-          "fallback",
-        },
+        ["<Tab>"] = { "show", "select_next", "fallback" },
+        ["<S-Tab>"] = { "select_prev", "fallback" },
+        ["<C-k>"] = { "hide", "hide_documentation", "hide_signature", "show_signature" },
 
         ["<Up>"] = { "select_prev", "fallback" },
         ["<Down>"] = { "select_next", "fallback" },
@@ -411,25 +351,15 @@ return {
 
       completion = {
         ghost_text = {
-          enabled = true,
+          enabled = false,
         },
         accept = {
-          auto_brackets = {
-            enabled = true,
-          },
+          expand_snippet = false,
         },
         menu = {
           border = "rounded",
           auto_show = true,
           max_height = 20,
-          cmdline_position = function()
-            if vim.g.ui_cmdline_pos ~= nil then
-              local pos = vim.g.ui_cmdline_pos -- (1, 0)-indexed
-              return { pos[1] - 1, pos[2] }
-            end
-            local height = (vim.o.cmdheight == 0) and 1 or vim.o.cmdheight
-            return { vim.o.lines - height, 0 }
-          end,
           draw = {
             components = {
               kind_icon = {
@@ -477,8 +407,12 @@ return {
         },
       },
       signature = {
-        enabled = true,
-        window = { border = "rounded" },
+        enabled = false,
+        window = {
+          border = "rounded",
+          show_documentation = true,
+          scrollbar = true,
+        },
       },
       appearance = {
         use_nvim_cmp_as_default = false,
@@ -490,7 +424,7 @@ return {
       -- Default list of enabled providers defined so that you can extend it
       -- elsewhere in your config, without redefining it, due to `opts_extend`
       sources = {
-        default = { "lsp", "path", "snippets", "buffer" },
+        default = { "lsp", "path", "cmdline", "buffer" },
         per_filetype = {
           sql = { "dadbod" },
           -- optionally inherit from the `default` sources
@@ -500,11 +434,26 @@ return {
           dadbod = { module = "vim_dadbod_completion.blink" },
           lazydev = { ... },
           lsp = { ... },
+          -- supermaven = {
+          --   name = "supermaven",
+          --   module = "blink.compat.source",
+          --   score_offset = 3,
+          -- },
         },
       },
 
       snippets = {
-        preset = "mini_snippets",
+        expand = function(snippet)
+          -- Extract only the function name (everything before the first opening parenthesis)
+          local function_name = snippet:match("^([^%(]+)")
+          if function_name then
+            vim.api.nvim_put({ function_name }, "c", true, true)
+          else
+            -- Fallback: just insert the snippet as plain text without expansion
+            local plain_text = snippet:gsub("%$%{%d+:(.-)%}", "%1"):gsub("%$%d+", ""):gsub("%$0", "")
+            vim.api.nvim_put({ plain_text }, "c", true, true)
+          end
+        end,
       },
 
       -- Blink.cmp uses a Rust fuzzy matcher by default for typo resistance and significantly better performance
@@ -515,6 +464,17 @@ return {
       fuzzy = { implementation = "prefer_rust_with_warning" },
     },
     opts_extend = { "sources.default" },
+  },
+  {
+    "folke/noice.nvim",
+    opts = {
+      lsp = {
+        signature = {
+          enabled = true,
+          auto_open = { enabled = true },
+        },
+      },
+    },
   },
   {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
