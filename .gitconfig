@@ -1,10 +1,17 @@
 [user]
   name = Björn Förschner
   email = 1569796+BFoerschner@users.noreply.github.com
+[diff]
+  tool = difftastic
+[difftool "difftastic"]
+  # See `man git-difftool` for a description of MERGED, LOCAL and REMOTE.
+  cmd = difft "$MERGED" "$LOCAL" "abcdef1" "100644" "$REMOTE" "abcdef2" "100644"
 [core]
   pager = delta
-[interactive]
-  diffFilter = delta --color-only
+[difftool]
+  prompt = false
+[pager]
+  difftool = true
 [delta]
   navigate = true  # use n and N to move between diff sections
   dark = true
@@ -16,8 +23,8 @@
 	rebase = true
 [alias]
   slog = log --pretty=tformat:'%C(bold blue)%h %C(bold red)%ad %C(bold blue)%aN%C(auto)%d %s%C(reset)' --date=short --graph
-  wiff = diff --word-diff=color
   ndiff = "! args=$@; shift $#; nvim -c \"DiffviewOpen $args\""
+  ld = "!git log -p | delta"
 
   a = add
   b = branch
