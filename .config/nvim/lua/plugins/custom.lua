@@ -339,7 +339,7 @@ return {
         preset = "none",
 
         ["<CR>"] = { "accept", "fallback" },
-        ["<Tab>"] = { "show", "select_next", "fallback" },
+        ["<Tab>"] = { "select_next", "fallback" },
         ["<S-Tab>"] = { "select_prev", "fallback" },
         ["<C-k>"] = { "hide", "hide_documentation", "hide_signature", "show_signature" },
 
