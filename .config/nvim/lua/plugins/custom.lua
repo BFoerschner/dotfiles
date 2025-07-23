@@ -353,9 +353,6 @@ return {
         ghost_text = {
           enabled = false,
         },
-        accept = {
-          expand_snippet = false,
-        },
         menu = {
           border = "rounded",
           auto_show = true,
