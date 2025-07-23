@@ -125,6 +125,7 @@ alias rg="rg --hidden --glob '!.git'"
 alias t="tmux new-session -A -s main"
 alias llm="llm"
 alias lg="lazygit"
+alias ldo="lazydocker"
 
 # Enhanced aliases (only add if tools are available)
 if command -v eza > /dev/null 2>&1; then
