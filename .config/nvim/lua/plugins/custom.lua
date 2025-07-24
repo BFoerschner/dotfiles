@@ -211,7 +211,9 @@ return {
       local lspconfig = require("lspconfig")
       for server, config in pairs(opts.servers or {}) do
         config.capabilities = capabilities
-        lspconfig[server].setup(config)
+        pcall(function()
+          lspconfig[server].setup(config)
+        end)
       end
     end,
   },
@@ -401,9 +403,6 @@ return {
       },
 
       completion = {
-        accept = {
-          expand_snippet = false,
-        },
         ghost_text = {
           enabled = false,
         },
@@ -485,9 +484,6 @@ return {
           dadbod = { module = "vim_dadbod_completion.blink" },
           lazydev = { ... },
           lsp = { ... },
-          snippets = {
-            enable = true,
-          },
         },
       },
 
