@@ -1,6 +1,8 @@
 [user]
   name = Björn Förschner
   email = 1569796+BFoerschner@users.noreply.github.com
+[advice]
+  defaultBranchName = false
 [diff]
   tool = difftastic
 [difftool "difftastic"]
