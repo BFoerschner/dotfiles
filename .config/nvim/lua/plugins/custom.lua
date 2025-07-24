@@ -196,16 +196,29 @@ return {
         end,
       },
     },
+    config = function(_, opts)
+      -- Apply capabilities with snippet support disabled
+      local capabilities = require("blink.cmp").get_lsp_capabilities({
+        textDocument = {
+          completion = {
+            completionItem = {
+              snippetSupport = false,
+            },
+          },
+        },
+      })
+
+      local lspconfig = require("lspconfig")
+      for server, config in pairs(opts.servers or {}) do
+        config.capabilities = capabilities
+        lspconfig[server].setup(config)
+      end
+    end,
   },
   { "akinsho/bufferline.nvim", enabled = false },
   { "nvim-neo-tree/neo-tree.nvim", enabled = false },
   { "folke/flash.nvim", enabled = false },
-  { "MeanderingProgrammer/render-markdown.nvim", enabled = false },
-  {
-    "nvim-treesitter/nvim-treesitter",
-    dependencies = { "OXY2DEV/markview.nvim" },
-    lazy = false,
-  },
+  -- { "MeanderingProgrammer/render-markdown.nvim", enabled = false },
   {
     "jellydn/hurl.nvim",
     dependencies = {
@@ -333,6 +346,18 @@ return {
     },
   },
   {
+    "echasnovski/mini.snippets",
+    opts = {
+      -- Disable default mappings
+      mappings = {
+        expand = "",
+        jump_next = "",
+        jump_prev = "",
+        stop = "",
+      },
+    },
+  },
+  {
     "nvim-zh/colorful-winsep.nvim",
     config = true,
     event = { "WinLeave" },
@@ -366,6 +391,9 @@ return {
         ["<S-Tab>"] = { "select_prev", "fallback" },
         ["<C-k>"] = { "hide", "hide_documentation", "hide_signature", "show_signature" },
 
+        ["<Right>"] = { "snippet_forward", "fallback" },
+        ["<Left>"] = { "snippet_backward", "fallback" },
+
         ["<Up>"] = { "select_prev", "fallback" },
         ["<Down>"] = { "select_next", "fallback" },
         ["<C-up>"] = { "scroll_documentation_up", "fallback" },
@@ -373,6 +401,9 @@ return {
       },
 
       completion = {
+        accept = {
+          expand_snippet = false,
+        },
         ghost_text = {
           enabled = false,
         },
@@ -454,26 +485,10 @@ return {
           dadbod = { module = "vim_dadbod_completion.blink" },
           lazydev = { ... },
           lsp = { ... },
-          -- supermaven = {
-          --   name = "supermaven",
-          --   module = "blink.compat.source",
-          --   score_offset = 3,
-          -- },
+          snippets = {
+            enable = true,
+          },
         },
-      },
-
-      snippets = {
-        expand = function(snippet)
-          -- Extract only the function name (everything before the first opening parenthesis)
-          local function_name = snippet:match("^([^%(]+)")
-          if function_name then
-            vim.api.nvim_put({ function_name }, "c", true, true)
-          else
-            -- Fallback: just insert the snippet as plain text without expansion
-            local plain_text = snippet:gsub("%$%{%d+:(.-)%}", "%1"):gsub("%$%d+", ""):gsub("%$0", "")
-            vim.api.nvim_put({ plain_text }, "c", true, true)
-          end
-        end,
       },
 
       -- Blink.cmp uses a Rust fuzzy matcher by default for typo resistance and significantly better performance
