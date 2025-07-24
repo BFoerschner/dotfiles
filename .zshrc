@@ -71,8 +71,7 @@ zinit wait lucid for \
   atload"!_zsh_autosuggest_start" \
     zsh-users/zsh-autosuggestions \
   Aloxaf/fzf-tab \
-  birdhackor/zsh-eza-ls-plugin \
-  jeffreytse/zsh-vi-mode
+  birdhackor/zsh-eza-ls-plugin
 
 # Tmux xpanes
 source "$HOME"/.local/pkg/tmux-xpanes/activate.sh
