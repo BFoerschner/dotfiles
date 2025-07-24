@@ -172,6 +172,29 @@ return {
           filetypes = { "sh", "zsh" },
         },
       },
+      setup = {
+        -- This runs once after LSP is set up
+        ["*"] = function()
+          -- Disable virtual text diagnostics
+          vim.diagnostic.config({
+            virtual_text = false,
+            signs = true,
+            underline = true,
+            update_in_insert = true,
+            severity_sort = true,
+          })
+
+          -- Show diagnostics in floating window on CursorHold
+          vim.o.updatetime = 250
+          vim.api.nvim_create_autocmd("CursorHold", {
+            callback = function()
+              vim.diagnostic.open_float(nil, { focusable = false })
+            end,
+          })
+
+          return false -- allow default handler to continue
+        end,
+      },
     },
   },
   { "akinsho/bufferline.nvim", enabled = false },
