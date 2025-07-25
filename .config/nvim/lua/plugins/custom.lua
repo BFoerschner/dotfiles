@@ -163,59 +163,129 @@ return {
   },
   {
     "neovim/nvim-lspconfig",
-    opts = {
-      inlay_hints = {
-        enabled = true,
-      },
-      servers = {
-        bashls = {
-          filetypes = { "sh", "zsh" },
-        },
-      },
-      setup = {
-        -- This runs once after LSP is set up
-        ["*"] = function()
-          -- Disable virtual text diagnostics
-          vim.diagnostic.config({
-            virtual_text = false,
-            signs = true,
-            underline = true,
-            update_in_insert = true,
-            severity_sort = true,
-          })
+    opts = function(_, opts)
+      -- Safely require cmp_nvim_lsp
+      local ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
+      if not ok then
+        cmp_nvim_lsp = nil
+      end
 
-          -- Show diagnostics in floating window on CursorHold
-          vim.o.updatetime = 250
-          vim.api.nvim_create_autocmd("CursorHold", {
-            callback = function()
-              vim.diagnostic.open_float(nil, { focusable = false })
-            end,
-          })
+      -- Start with base capabilities
+      local capabilities = vim.lsp.protocol.make_client_capabilities()
 
-          return false -- allow default handler to continue
-        end,
-      },
-    },
-    config = function(_, opts)
-      -- Apply capabilities with snippet support disabled
-      local capabilities = require("blink.cmp").get_lsp_capabilities({
-        textDocument = {
-          completion = {
-            completionItem = {
-              snippetSupport = false,
+      -- If cmp_nvim_lsp is available, merge its capabilities
+      if cmp_nvim_lsp then
+        capabilities = cmp_nvim_lsp.default_capabilities(capabilities)
+      end
+
+      -- Disable snippet support globally since it's really annoying
+      capabilities.textDocument.completion.completionItem.snippetSupport = false
+      opts.capabilities = capabilities
+
+      -- Setup diagnostic display and floating window behavior
+      opts.setup = opts.setup or {}
+      opts.setup["*"] = function()
+        vim.diagnostic.config({
+          virtual_text = false,
+          virtual_lines = true,
+          underline = false,
+          update_in_insert = false,
+          severity_sort = true,
+          signs = {
+            text = {
+              [vim.diagnostic.severity.ERROR] = "➤",
+              [vim.diagnostic.severity.WARN] = "➜",
+              [vim.diagnostic.severity.INFO] = "➔",
+              [vim.diagnostic.severity.HINT] = "➢",
+            },
+            linehl = {
+              [vim.diagnostic.severity.ERROR] = "DiagnosticLineError",
+              [vim.diagnostic.severity.WARN] = "DiagnosticLineWarn",
+              [vim.diagnostic.severity.INFO] = "DiagnosticLineInfo",
+              [vim.diagnostic.severity.HINT] = "DiagnosticLineHint",
+            },
+            numhl = {
+              [vim.diagnostic.severity.ERROR] = "DiagnosticLineNrError",
+              [vim.diagnostic.severity.WARN] = "DiagnosticLineNrWarn",
+              [vim.diagnostic.severity.INFO] = "DiagnosticLineNrInfo",
+              [vim.diagnostic.severity.HINT] = "DiagnosticLineNrHint",
             },
           },
-        },
-      })
+        })
 
-      local lspconfig = require("lspconfig")
-      for server, config in pairs(opts.servers or {}) do
-        config.capabilities = capabilities
-        pcall(function()
-          lspconfig[server].setup(config)
-        end)
+        vim.api.nvim_create_autocmd("ColorScheme", {
+          callback = function()
+            -- Line highlighting (subtle background tint)
+            vim.api.nvim_set_hl(0, "DiagnosticLineError", { bg = "#3d2828", fg = "NONE" })
+            vim.api.nvim_set_hl(0, "DiagnosticLineWarn", { bg = "#3d3528", fg = "NONE" })
+            vim.api.nvim_set_hl(0, "DiagnosticLineInfo", { bg = "#1e3d3d", fg = "NONE" })
+            vim.api.nvim_set_hl(0, "DiagnosticLineHint", { bg = "#2d2d3d", fg = "NONE" })
+
+            -- Line number highlighting
+            vim.api.nvim_set_hl(0, "DiagnosticLineNrError", { fg = "#f38ba8", bold = true })
+            vim.api.nvim_set_hl(0, "DiagnosticLineNrWarn", { fg = "#f9e2af", bold = true })
+            vim.api.nvim_set_hl(0, "DiagnosticLineNrInfo", { fg = "#89b4fa", bold = true })
+            vim.api.nvim_set_hl(0, "DiagnosticLineNrHint", { fg = "#a6adc8", bold = true })
+          end,
+        })
+
+        -- Trigger the highlight setup immediately
+        vim.cmd("doautocmd ColorScheme")
+
+        vim.o.updatetime = 0
+
+        -- Setup inlay hints toggle based on mode
+        vim.api.nvim_create_autocmd("InsertEnter", {
+          callback = function()
+            vim.lsp.inlay_hint.enable(false, { bufnr = 0 })
+          end,
+        })
+
+        vim.api.nvim_create_autocmd("InsertLeave", {
+          callback = function()
+            vim.lsp.inlay_hint.enable(true, { bufnr = 0 })
+          end,
+        })
+
+        -- Enable inlay hints initially (for normal mode)
+        vim.lsp.inlay_hint.enable(true, { bufnr = 0 })
+
+        return false -- allow default setup to continue
       end
     end,
+    -- opts = {
+    --   inlay_hints = {
+    --     enabled = true,
+    --   },
+    --   servers = {
+    --     bashls = {
+    --       filetypes = { "sh", "zsh" },
+    --     },
+    --   },
+    --   setup = {
+    --     -- This runs once after LSP is set up
+    --     ["*"] = function()
+    --       -- Disable virtual text diagnostics
+    --       vim.diagnostic.config({
+    --         virtual_text = false,
+    --         signs = true,
+    --         underline = true,
+    --         update_in_insert = true,
+    --         severity_sort = true,
+    --       })
+    --
+    --       -- Show diagnostics in floating window on CursorHold
+    --       vim.o.updatetime = 250
+    --       vim.api.nvim_create_autocmd("CursorHold", {
+    --         callback = function()
+    --           vim.diagnostic.open_float(nil, { focusable = false })
+    --         end,
+    --       })
+    --
+    --       return false -- allow default handler to continue
+    --     end,
+    --   },
+    -- },
   },
   { "akinsho/bufferline.nvim", enabled = false },
   { "nvim-neo-tree/neo-tree.nvim", enabled = false },
