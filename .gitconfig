@@ -10,6 +10,7 @@
   cmd = difft "$MERGED" "$LOCAL" "abcdef1" "100644" "$REMOTE" "abcdef2" "100644"
 [core]
   pager = delta
+	excludesfile = ~/.config/git/.gitignore
 [difftool]
   prompt = false
 [pager]
