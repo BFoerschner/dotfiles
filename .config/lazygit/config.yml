@@ -1,6 +1,7 @@
 disableStartupPopups: true
 gui:
   showIcons: true
+  nerdFontsVersion: "3"
 git:
   paging:
     colorArg: always
