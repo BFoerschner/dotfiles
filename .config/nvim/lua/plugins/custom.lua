@@ -252,12 +252,56 @@ return {
       -- Setup diagnostic display and floating window behavior
       opts.setup = opts.setup or {}
       opts.setup["*"] = function()
+        -- Function to toggle virtual_lines
+        local function toggle_virtual_lines(enable)
+          vim.diagnostic.config({
+            virtual_lines = enable,
+          })
+          if enable then
+            vim.diagnostic.show(nil, 0) -- Refresh diagnostics for current buffer
+          end
+        end
+
+        vim.api.nvim_create_augroup("DiagnosticVirtualLines", { clear = true })
+
+        vim.api.nvim_create_autocmd("CursorHold", {
+          group = "DiagnosticVirtualLines",
+          callback = function()
+            -- Check if there are diagnostics on the current line
+            local line = vim.api.nvim_win_get_cursor(0)[1] - 1
+            local diagnostics = vim.diagnostic.get(0, { lnum = line })
+
+            if #diagnostics > 0 then
+              toggle_virtual_lines(true)
+            end
+          end,
+        })
+
+        vim.api.nvim_create_autocmd("CursorMoved", {
+          group = "DiagnosticVirtualLines",
+          callback = function()
+            toggle_virtual_lines(false)
+          end,
+        })
+
+        -- Optional: Also disable when leaving the buffer
+        vim.api.nvim_create_autocmd("BufLeave", {
+          group = "DiagnosticVirtualLines",
+          callback = function()
+            toggle_virtual_lines(false)
+          end,
+        })
+
         vim.diagnostic.config({
           virtual_text = false,
-          virtual_lines = true,
+          virtual_lines = false,
           underline = false,
           update_in_insert = false,
           severity_sort = true,
+          float = {
+            border = "rounded",
+            anchor_bias = "above",
+          },
           signs = {
             text = {
               [vim.diagnostic.severity.ERROR] = "➤",
@@ -279,6 +323,18 @@ return {
             },
           },
         })
+
+        -- Override the default diagnostic navigation to never show float
+        vim.keymap.set("n", "]d", function()
+          vim.diagnostic.jump({ count = 1, float = false })
+        end, { desc = "Next diagnostic" })
+        vim.keymap.set("n", "[d", function()
+          vim.diagnostic.jump({ count = -1, float = false })
+        end, { desc = "Previous diagnostic" })
+
+        vim.keymap.set("n", "<leader>e", function()
+          vim.diagnostic.open_float({ border = "rounded" })
+        end, { desc = "Show line diagnostics" })
 
         vim.api.nvim_create_autocmd("ColorScheme", {
           callback = function()
@@ -604,7 +660,11 @@ return {
         providers = {
           dadbod = { module = "vim_dadbod_completion.blink" },
           lazydev = { ... },
-          lsp = { ... },
+          -- lsp = {
+          --   opts = {
+          --     preselct = true,
+          --   }
+          --   ... },
         },
       },
 
