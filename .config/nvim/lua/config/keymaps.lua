@@ -5,7 +5,7 @@ map("n", ",,", ":buffer #<CR>", { noremap = true, silent = true })
 map("n", ",vs", ":vsplit<CR><C-W>h", { noremap = true, silent = true })
 map("n", ",hs", ":split<CR><C-W>k", { noremap = true, silent = true })
 
-map("n", "<C-F>", "<cmd>NvimTreeToggle<cr>", { noremap = true, silent = true })
+map("n", "<C-F>", "<cmd>Fyler<cr>", { noremap = true, silent = true })
 map("n", "<Leader>gd", "<cmd>DiffviewOpen<cr>", { noremap = true, silent = true })
 
 -- visual paste without yanking

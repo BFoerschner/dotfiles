@@ -5,12 +5,35 @@ return {
     event = { "LazyFile", "VeryLazy" },
     lazy = false,
   },
+  -- {
+  --   "nvim-tree/nvim-tree.lua",
+  --   opts = {},
+  --   config = function(_, _)
+  --     require("nvim-tree").setup()
+  --   end,
+  -- },
   {
-    "nvim-tree/nvim-tree.lua",
-    opts = {},
-    config = function(_, _)
-      require("nvim-tree").setup()
-    end,
+    "A7Lavinraj/fyler.nvim",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    opts = { -- check the default options in the README.md
+      icon_provider = "nvim-web-devicons",
+      mappings = {
+        confirm = {
+          n = {
+            ["y"] = "Confirm",
+            ["n"] = "Discard",
+          },
+        },
+        explorer = {
+          n = {
+            ["q"] = "CloseView",
+            ["<CR>"] = "Select",
+            ["<Right>"] = "Select",
+            ["<Left>"] = "Select",
+          },
+        },
+      },
+    },
   },
   {
     "christoomey/vim-tmux-navigator",
@@ -128,12 +151,6 @@ return {
         },
       }
     end,
-  },
-  {
-    "stevearc/oil.nvim",
-    opts = {},
-    -- dependencies = { { "echasnovski/mini.icons", opts = {} } },
-    dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if prefer nvim-web-devicons
   },
   {
     "polirritmico/monokai-nightasty.nvim",
