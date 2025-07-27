@@ -13,10 +13,6 @@ return {
     end,
   },
   {
-    "echasnovski/mini.pairs",
-    enabled = false,
-  },
-  {
     "christoomey/vim-tmux-navigator",
     cmd = {
       "TmuxNavigateLeft",
@@ -342,39 +338,6 @@ return {
         return false -- allow default setup to continue
       end
     end,
-    -- opts = {
-    --   inlay_hints = {
-    --     enabled = true,
-    --   },
-    --   servers = {
-    --     bashls = {
-    --       filetypes = { "sh", "zsh" },
-    --     },
-    --   },
-    --   setup = {
-    --     -- This runs once after LSP is set up
-    --     ["*"] = function()
-    --       -- Disable virtual text diagnostics
-    --       vim.diagnostic.config({
-    --         virtual_text = false,
-    --         signs = true,
-    --         underline = true,
-    --         update_in_insert = true,
-    --         severity_sort = true,
-    --       })
-    --
-    --       -- Show diagnostics in floating window on CursorHold
-    --       vim.o.updatetime = 250
-    --       vim.api.nvim_create_autocmd("CursorHold", {
-    --         callback = function()
-    --           vim.diagnostic.open_float(nil, { focusable = false })
-    --         end,
-    --       })
-    --
-    --       return false -- allow default handler to continue
-    --     end,
-    --   },
-    -- },
   },
   { "akinsho/bufferline.nvim", enabled = false },
   { "nvim-neo-tree/neo-tree.nvim", enabled = false },
@@ -439,32 +402,32 @@ return {
       { "<leader>h", ":HurlRunner<CR>", desc = "Hurl Runner", mode = "v" },
     },
   },
-  {
-    "ovk/endec.nvim",
-    event = "VeryLazy",
-    opts = {
-      keymaps = {
-        -- Decode Base64 in-place
-        decode_base64_inplace = "<leader>tdb", -- normal
-        vdecode_base64_inplace = "<leader>tdb", -- visual
-        -- Encode Base64 in-place (normal mode)
-        encode_base64_inplace = "<leader>teb", -- normal
-        vencode_base64_inplace = "<leader>teb", -- visual
-        -- Decode Base64URL in-place
-        decode_base64url_inplace = "<leader>tdB", -- normal
-        vdecode_base64url_inplace = "<leader>tdB", -- visual
-        -- Encode Base64URL in-place
-        encode_base64url_inplace = "<leader>teB", -- normal
-        vencode_base64url_inplace = "<leader>teB", -- visual
-        -- Decode URL in-place
-        decode_url_inplace = "<leader>tdU", -- normal
-        vdecode_url_inplace = "<leader>tdU", -- visual
-        -- Encode URL in-place
-        encode_url_inplace = "<leader>teU", -- normal
-        vencode_url_inplace = "<leader>teU", --visual
-      },
-    },
-  },
+  -- {
+  --   "ovk/endec.nvim",
+  --   event = "VeryLazy",
+  --   opts = {
+  --     keymaps = {
+  --       -- Decode Base64 in-place
+  --       decode_base64_inplace = "<leader>tdb", -- normal
+  --       vdecode_base64_inplace = "<leader>tdb", -- visual
+  --       -- Encode Base64 in-place (normal mode)
+  --       encode_base64_inplace = "<leader>teb", -- normal
+  --       vencode_base64_inplace = "<leader>teb", -- visual
+  --       -- Decode Base64URL in-place
+  --       decode_base64url_inplace = "<leader>tdB", -- normal
+  --       vdecode_base64url_inplace = "<leader>tdB", -- visual
+  --       -- Encode Base64URL in-place
+  --       encode_base64url_inplace = "<leader>teB", -- normal
+  --       vencode_base64url_inplace = "<leader>teB", -- visual
+  --       -- Decode URL in-place
+  --       decode_url_inplace = "<leader>tdU", -- normal
+  --       vdecode_url_inplace = "<leader>tdU", -- visual
+  --       -- Encode URL in-place
+  --       encode_url_inplace = "<leader>teU", -- normal
+  --       vencode_url_inplace = "<leader>teU", --visual
+  --     },
+  --   },
+  -- },
   {
     "michaelrommel/nvim-silicon",
     lazy = true,
