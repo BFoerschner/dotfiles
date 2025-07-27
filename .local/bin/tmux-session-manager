@@ -38,7 +38,7 @@ if [ -n "$TMUX" ]; then
   else
     # Session doesn't exist, use tmux command-prompt for input
     tmux command-prompt -p "Enter name for session $SESSION_NUM (default: $DEFAULT_SESSION_NAME):" \
-      "run-shell 'tmux-session-creator $SESSION_NUM \"%1\"'"
+      "run-shell '$HOME/.local/bin/tmux-session-creator $SESSION_NUM \"%1\"'"
   fi
 else
   # We're outside tmux
