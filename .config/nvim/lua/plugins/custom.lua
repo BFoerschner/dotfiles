@@ -306,6 +306,24 @@ return {
         vim.o.updatetime = 0
 
         -- Setup inlay hints toggle based on mode
+        local visual_event_group = vim.api.nvim_create_augroup("visual_event", { clear = true })
+
+        vim.api.nvim_create_autocmd("ModeChanged", {
+          group = visual_event_group,
+          pattern = { "*:[vV\x16]*" },
+          callback = function()
+            vim.lsp.inlay_hint.enable(false, { bufnr = 0 })
+          end,
+        })
+
+        vim.api.nvim_create_autocmd("ModeChanged", {
+          group = visual_event_group,
+          pattern = { "[vV\x16]*:*" },
+          callback = function()
+            vim.lsp.inlay_hint.enable(true, { bufnr = 0 })
+          end,
+        })
+
         vim.api.nvim_create_autocmd("InsertEnter", {
           callback = function()
             vim.lsp.inlay_hint.enable(false, { bufnr = 0 })
