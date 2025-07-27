@@ -252,56 +252,12 @@ return {
       -- Setup diagnostic display and floating window behavior
       opts.setup = opts.setup or {}
       opts.setup["*"] = function()
-        -- Function to toggle virtual_lines
-        local function toggle_virtual_lines(enable)
-          vim.diagnostic.config({
-            virtual_lines = enable,
-          })
-          if enable then
-            vim.diagnostic.show(nil, 0) -- Refresh diagnostics for current buffer
-          end
-        end
-
-        vim.api.nvim_create_augroup("DiagnosticVirtualLines", { clear = true })
-
-        vim.api.nvim_create_autocmd("CursorHold", {
-          group = "DiagnosticVirtualLines",
-          callback = function()
-            -- Check if there are diagnostics on the current line
-            local line = vim.api.nvim_win_get_cursor(0)[1] - 1
-            local diagnostics = vim.diagnostic.get(0, { lnum = line })
-
-            if #diagnostics > 0 then
-              toggle_virtual_lines(true)
-            end
-          end,
-        })
-
-        vim.api.nvim_create_autocmd("CursorMoved", {
-          group = "DiagnosticVirtualLines",
-          callback = function()
-            toggle_virtual_lines(false)
-          end,
-        })
-
-        -- Optional: Also disable when leaving the buffer
-        vim.api.nvim_create_autocmd("BufLeave", {
-          group = "DiagnosticVirtualLines",
-          callback = function()
-            toggle_virtual_lines(false)
-          end,
-        })
-
         vim.diagnostic.config({
           virtual_text = false,
           virtual_lines = false,
           underline = false,
-          update_in_insert = false,
+          update_in_insert = true,
           severity_sort = true,
-          float = {
-            border = "rounded",
-            anchor_bias = "above",
-          },
           signs = {
             text = {
               [vim.diagnostic.severity.ERROR] = "➤",
@@ -324,17 +280,47 @@ return {
           },
         })
 
-        -- Override the default diagnostic navigation to never show float
-        vim.keymap.set("n", "]d", function()
-          vim.diagnostic.jump({ count = 1, float = false })
-        end, { desc = "Next diagnostic" })
-        vim.keymap.set("n", "[d", function()
-          vim.diagnostic.jump({ count = -1, float = false })
-        end, { desc = "Previous diagnostic" })
+        -- todo: refactor this next part, combine icons with signs above and use them in autocmd
+        local diagnostic_icons = {
+          [vim.diagnostic.severity.ERROR] = "➤",
+          [vim.diagnostic.severity.WARN] = "➜",
+          [vim.diagnostic.severity.INFO] = "➔",
+          [vim.diagnostic.severity.HINT] = "➢",
+        }
 
-        vim.keymap.set("n", "<leader>e", function()
-          vim.diagnostic.open_float({ border = "rounded" })
-        end, { desc = "Show line diagnostics" })
+        -- Enable diagnostic float on hover
+        vim.api.nvim_create_autocmd("CursorHold", {
+          callback = function()
+            local line_diagnostics = vim.diagnostic.get(0, { lnum = vim.fn.line(".") - 1 })
+            local header_text = nil
+            if #line_diagnostics > 1 then
+              header_text = { string.format("  %d diagnostics", #line_diagnostics), "DiagnosticFloatHeader" }
+            end
+
+            local float_opts = {
+              focusable = false,
+              close_events = { "BufLeave", "CursorMoved", "InsertEnter", "FocusLost" },
+              border = "rounded",
+              source = "always",
+              prefix = function(diagnostic, _, _)
+                local icon = diagnostic_icons[diagnostic.severity] or "• "
+                return string.format("%s ", icon), "Diagnostic" .. vim.diagnostic.severity[diagnostic.severity]
+              end,
+              format = function(diagnostic)
+                return diagnostic.message
+              end,
+              header = header_text,
+              pad_top = 1,
+              pad_bottom = 1,
+              max_width = 140,
+              wrap = true,
+            }
+            vim.diagnostic.open_float(nil, float_opts)
+          end,
+        })
+
+        -- Optional: Adjust the hover delay (default is 4000ms)
+        vim.opt.updatetime = 50 -- 800ms delay before showing float
 
         vim.api.nvim_create_autocmd("ColorScheme", {
           callback = function()
