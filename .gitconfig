@@ -24,6 +24,8 @@
   conflictstyle = zdiff3
 [pull]
 	rebase = true
+[advice]
+	skippedCherryPicks = false
 [alias]
   slog = log --pretty=tformat:'%C(bold blue)%h %C(bold red)%ad %C(bold blue)%aN%C(auto)%d %s%C(reset)' --date=short --graph
   ndiff = "! args=$@; shift $#; nvim -c \"DiffviewOpen $args\""
