@@ -54,6 +54,11 @@ return {
       -- Show diagnostic popup on cursor hold
       vim.api.nvim_create_autocmd("CursorHold", {
         callback = function()
+          -- Only show diagnostic floats if diagnostics are enabled
+          if not vim.diagnostic.is_enabled() then
+            return
+          end
+
           local line_diagnostics = vim.diagnostic.get(0, { lnum = vim.fn.line(".") - 1 })
           -- Show count in header if multiple diagnostics
           local header_text = #line_diagnostics > 1
