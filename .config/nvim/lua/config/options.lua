@@ -9,3 +9,4 @@ vim.g.loaded_perl_provider = 0
 vim.g.loaded_ruby_provider = 0
 vim.o.shell = "/bin/zsh"
 vim.g.lazyvim_blink_main = true
+vim.g.clipboard = "tmux"
