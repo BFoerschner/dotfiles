@@ -1,6 +1,9 @@
 return {
   "A7Lavinraj/fyler.nvim",
   dependencies = { "nvim-tree/nvim-web-devicons" },
+  keys = {
+    { "<C-F>", "<cmd>Fyler<cr>", desc = "Open Fyler" },
+  },
   opts = {
     icon_provider = "nvim-web-devicons",
     mappings = {
