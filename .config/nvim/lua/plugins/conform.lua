@@ -1,0 +1,25 @@
+return {
+  "stevearc/conform.nvim",
+  optional = true,
+  opts = {
+    formatters_by_ft = {
+      ["javascript"] = { "prettierd" },
+      ["javascriptreact"] = { "prettierd" },
+      ["typescript"] = { "prettierd" },
+      ["typescriptreact"] = { "prettierd" },
+      ["svelte"] = { "prettierd" },
+      ["vue"] = { "prettierd" },
+      ["css"] = { "prettierd" },
+      ["scss"] = { "prettierd" },
+      ["less"] = { "prettierd" },
+      ["html"] = { "prettierd" },
+      ["json"] = { "prettier" },
+      ["jsonc"] = { "prettierd" },
+      ["yaml"] = { "prettierd" },
+      ["markdown"] = { "prettierd" },
+      ["markdown.mdx"] = { "prettierd" },
+      ["graphql"] = { "prettierd" },
+      ["handlebars"] = { "prettierd" },
+    },
+  },
+}
