@@ -1,22 +1,33 @@
 return {
   "neovim/nvim-lspconfig",
   opts = function(_, opts)
+    -- Setup completion capabilities
     local ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
-    if not ok then
-      cmp_nvim_lsp = nil
-    end
-
     local capabilities = vim.lsp.protocol.make_client_capabilities()
 
-    if cmp_nvim_lsp then
+    if ok and cmp_nvim_lsp then
       capabilities = cmp_nvim_lsp.default_capabilities(capabilities)
     end
 
+    -- Disable snippet support for completion
     capabilities.textDocument.completion.completionItem.snippetSupport = false
     opts.capabilities = capabilities
 
     opts.setup = opts.setup or {}
     opts.setup["*"] = function()
+      local diagnostic_icons = {
+        [vim.diagnostic.severity.ERROR] = "➤",
+        [vim.diagnostic.severity.WARN] = "➜",
+        [vim.diagnostic.severity.INFO] = "➔",
+        [vim.diagnostic.severity.HINT] = "➢",
+      }
+
+      -- Color schemes for diagnostic highlights
+      local severity_names = { "Error", "Warn", "Info", "Hint" }
+      local line_colors = { "#3d2828", "#3d3528", "#1e3d3d", "#2d2d3d" }
+      local nr_colors = { "#f38ba8", "#f9e2af", "#89b4fa", "#a6adc8" }
+
+      -- Configure diagnostic display
       vim.diagnostic.config({
         virtual_text = false,
         virtual_lines = false,
@@ -24,12 +35,7 @@ return {
         update_in_insert = true,
         severity_sort = true,
         signs = {
-          text = {
-            [vim.diagnostic.severity.ERROR] = "➤",
-            [vim.diagnostic.severity.WARN] = "➜",
-            [vim.diagnostic.severity.INFO] = "➔",
-            [vim.diagnostic.severity.HINT] = "➢",
-          },
+          text = diagnostic_icons,
           linehl = {
             [vim.diagnostic.severity.ERROR] = "DiagnosticLineError",
             [vim.diagnostic.severity.WARN] = "DiagnosticLineWarn",
@@ -45,26 +51,21 @@ return {
         },
       })
 
-      local diagnostic_icons = {
-        [vim.diagnostic.severity.ERROR] = "➤",
-        [vim.diagnostic.severity.WARN] = "➜",
-        [vim.diagnostic.severity.INFO] = "➔",
-        [vim.diagnostic.severity.HINT] = "➢",
-      }
-
+      -- Show diagnostic popup on cursor hold
       vim.api.nvim_create_autocmd("CursorHold", {
         callback = function()
           local line_diagnostics = vim.diagnostic.get(0, { lnum = vim.fn.line(".") - 1 })
-          local header_text = nil
-          if #line_diagnostics > 1 then
-            header_text = { string.format("  %d diagnostics", #line_diagnostics), "DiagnosticFloatHeader" }
-          end
+          -- Show count in header if multiple diagnostics
+          local header_text = #line_diagnostics > 1
+              and { string.format("  %d diagnostics", #line_diagnostics), "DiagnosticFloatHeader" }
+            or nil
 
-          local float_opts = {
+          vim.diagnostic.open_float(nil, {
             focusable = false,
             close_events = { "BufLeave", "CursorMoved", "InsertEnter", "FocusLost" },
             border = "rounded",
             source = "always",
+            -- Add icon prefix to each diagnostic
             prefix = function(diagnostic, _, _)
               local icon = diagnostic_icons[diagnostic.severity] or "• "
               return string.format("%s ", icon), "Diagnostic" .. vim.diagnostic.severity[diagnostic.severity]
@@ -77,65 +78,71 @@ return {
             pad_bottom = 1,
             max_width = 140,
             wrap = true,
-          }
-          vim.diagnostic.open_float(nil, float_opts)
+          })
         end,
       })
 
-      vim.opt.updatetime = 50
+      -- Setup diagnostic highlighting colors
+      local function setup_highlights()
+        for i, name in ipairs(severity_names) do
+          vim.api.nvim_set_hl(0, "DiagnosticLine" .. name, { bg = line_colors[i], fg = "NONE" })
+          vim.api.nvim_set_hl(0, "DiagnosticLineNr" .. name, { fg = nr_colors[i], bold = true })
+        end
+      end
 
-      vim.api.nvim_create_autocmd("ColorScheme", {
-        callback = function()
-          vim.api.nvim_set_hl(0, "DiagnosticLineError", { bg = "#3d2828", fg = "NONE" })
-          vim.api.nvim_set_hl(0, "DiagnosticLineWarn", { bg = "#3d3528", fg = "NONE" })
-          vim.api.nvim_set_hl(0, "DiagnosticLineInfo", { bg = "#1e3d3d", fg = "NONE" })
-          vim.api.nvim_set_hl(0, "DiagnosticLineHint", { bg = "#2d2d3d", fg = "NONE" })
-
-          vim.api.nvim_set_hl(0, "DiagnosticLineNrError", { fg = "#f38ba8", bold = true })
-          vim.api.nvim_set_hl(0, "DiagnosticLineNrWarn", { fg = "#f9e2af", bold = true })
-          vim.api.nvim_set_hl(0, "DiagnosticLineNrInfo", { fg = "#89b4fa", bold = true })
-          vim.api.nvim_set_hl(0, "DiagnosticLineNrHint", { fg = "#a6adc8", bold = true })
-        end,
-      })
-
+      -- Apply highlights on colorscheme changes
+      vim.api.nvim_create_autocmd("ColorScheme", { callback = setup_highlights })
       vim.cmd("doautocmd ColorScheme")
 
+      -- Inlay hints management
+      local function toggle_inlay_hints(enable)
+        vim.lsp.inlay_hint.enable(enable, { bufnr = 0 })
+      end
+
+      -- Hide inlay hints in visual mode and insert mode
+      local inlay_group = vim.api.nvim_create_augroup("inlay_hints", { clear = true })
+
+      -- Hide hints when entering visual mode
+      vim.api.nvim_create_autocmd("ModeChanged", {
+        group = inlay_group,
+        pattern = "*:[vV\x16]*",
+        callback = function()
+          toggle_inlay_hints(false)
+        end,
+      })
+
+      -- Show hints when leaving visual mode
+      vim.api.nvim_create_autocmd("ModeChanged", {
+        group = inlay_group,
+        pattern = "[vV\x16]*:*",
+        callback = function()
+          toggle_inlay_hints(true)
+        end,
+      })
+
+      -- Hide hints when entering insert mode
+      vim.api.nvim_create_autocmd("InsertEnter", {
+        group = inlay_group,
+        callback = function()
+          toggle_inlay_hints(false)
+        end,
+      })
+
+      -- Show hints when leaving insert mode
+      vim.api.nvim_create_autocmd("InsertLeave", {
+        group = inlay_group,
+        callback = function()
+          toggle_inlay_hints(true)
+        end,
+      })
+
+      -- Fast cursor updates for responsive diagnostics
       vim.o.updatetime = 0
 
-      local visual_event_group = vim.api.nvim_create_augroup("visual_event", { clear = true })
-
-      vim.api.nvim_create_autocmd("ModeChanged", {
-        group = visual_event_group,
-        pattern = { "*:[vV\x16]*" },
-        callback = function()
-          vim.lsp.inlay_hint.enable(false, { bufnr = 0 })
-        end,
-      })
-
-      vim.api.nvim_create_autocmd("ModeChanged", {
-        group = visual_event_group,
-        pattern = { "[vV\x16]*:*" },
-        callback = function()
-          vim.lsp.inlay_hint.enable(true, { bufnr = 0 })
-        end,
-      })
-
-      vim.api.nvim_create_autocmd("InsertEnter", {
-        callback = function()
-          vim.lsp.inlay_hint.enable(false, { bufnr = 0 })
-        end,
-      })
-
-      vim.api.nvim_create_autocmd("InsertLeave", {
-        callback = function()
-          vim.lsp.inlay_hint.enable(true, { bufnr = 0 })
-        end,
-      })
-
-      vim.lsp.inlay_hint.enable(true, { bufnr = 0 })
+      -- Enable inlay hints at first
+      toggle_inlay_hints(true)
 
       return false
     end
   end,
 }
-
