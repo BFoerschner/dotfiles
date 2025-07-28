@@ -3,6 +3,7 @@
 -- Add any additional options here
 
 vim.opt.scrolloff = 15
+vim.o.updatetime = 0
 vim.g.ai_cmp = true
 vim.g.python3_host_prog = "$HOME/.venvs/.nvim-venv/bin/python"
 vim.g.loaded_perl_provider = 0
