@@ -96,8 +96,7 @@ return {
         lazydev = { ... },
       },
     },
-    fuzzy = { implementation = "prefer_rust_with_warning" },
+    fuzzy = { implementation = "rust" },
   },
   opts_extend = { "sources.default" },
 }
-
