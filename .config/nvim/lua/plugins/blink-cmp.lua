@@ -3,8 +3,9 @@ return {
   dependencies = {
     { "rafamadriz/friendly-snippets" },
   },
-  version = "*",
-  build = "cargo build --release",
+  version = "1.*",
+  build = function() end,
+  lazy = false,
   opts = {
     keymap = {
       preset = "none",
