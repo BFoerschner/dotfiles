@@ -9,3 +9,5 @@ map("n", ",hs", ":split<CR><C-W>k", { noremap = true, silent = true })
 vim.keymap.set("x", "p", function()
   return 'pgv"' .. vim.v.register .. "y"
 end, { remap = false, expr = true })
+
+vim.keymap.set("n", "<C-f>", "<CMD>Oil --float<CR>", { desc = "Open parent directory" })
