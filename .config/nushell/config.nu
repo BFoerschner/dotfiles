@@ -117,11 +117,11 @@ $env.config = {
             event: {
                 send: executehostcommand
                 cmd: "commandline edit --insert (
-                    fd --hidden --type f --color=never 
-                    | fzf 
-                        --preview='bat --style=numbers --color=always {}' 
-                        --bind='ctrl-/:change-preview-window(down|hidden|)' 
-                    | str trim
+                        fd --hidden --type f --color=never 
+                        | fzf 
+                            --preview='bat --style=numbers --color=always {}' 
+                            --bind='ctrl-/:change-preview-window(down|hidden|)' 
+                        | str trim
                 )"
             }
         }
@@ -133,11 +133,9 @@ $env.config = {
             event: {
                 send: executehostcommand
                 cmd: "cd (
-                    fd --hidden --type d --color=never 
-                    | fzf 
-                        --preview='tree -C {}' 
-                        --bind='ctrl-/:change-preview-window(down|hidden|)' 
-                    | str trim
+                        fd --hidden --type d --color=never 
+                        | fzf --preview='tree -C {}' --bind='ctrl-/:change-preview-window(down|hidden|)' 
+                        | str trim
                 )"
             }
         }
@@ -149,9 +147,9 @@ $env.config = {
             event: {
                 send: executehostcommand
                 cmd: "commandline edit --replace (
-                    ^nu -c 'history | get command | reverse | uniq' 
-                    | fzf --height=40% --layout=reverse --border --prompt='History > ' --query=(commandline)
-                    | str trim
+                        history | get command | reverse | uniq | to text
+                        | fzf --height=40% --layout=reverse --border --prompt='History > ' --query=(commandline)
+                        | str trim
                 )"
             }
         }
