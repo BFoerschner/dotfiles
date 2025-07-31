@@ -33,9 +33,12 @@ $env.config = {
         return
       }
 
-      direnv export json | from json | default {} | load-env
-      if 'ENV_CONVERSIONS' in $env and 'PATH' in $env.ENV_CONVERSIONS {
-        $env.PATH = do $env.ENV_CONVERSIONS.PATH.from_string $env.PATH
+      let result = (^direnv export json | complete)
+      if $result.exit_code == 0 {
+        $result.stdout | from json | default {} | load-env
+        if 'ENV_CONVERSIONS' in $env and 'PATH' in $env.ENV_CONVERSIONS {
+          $env.PATH = do $env.ENV_CONVERSIONS.PATH.from_string $env.PATH
+        }
       }
     }]
   }
@@ -98,7 +101,7 @@ $env.config = {
     # footer_mode: 25
     float_precision: 2
     use_ansi_coloring: true
-    edit_mode: emacs
+    edit_mode: vi
     shell_integration: { osc2: true, osc7: true, osc8: true, osc9_9: false, osc133: true, osc633: true, reset_application_mode: true }
     buffer_editor: "nvim",
     completions: {
@@ -163,6 +166,25 @@ alias t = tmux new-session -A -s main
 alias lg = lazygit  
 alias ldo = lazydocker
 alias find = fd
+
+$env.STARSHIP_SHELL = "nu"
+$env.PROMPT_INDICATOR_VI_INSERT = ""
+$env.PROMPT_INDICATOR_VI_NORMAL = "{} "
+$env.PROMPT_MULTILINE_INDICATOR = " "
+$env.TRANSIENT_PROMPT_COMMAND = {|| 
+    let exit_code = if ($env.LAST_EXIT_CODE? | default 0) == 0 { 
+        $"(ansi green_bold)❯(ansi reset)" 
+    } else { 
+        $"(ansi red_bold)❯(ansi reset)" 
+    }
+    $"($exit_code) "
+}
+# $env.TRANSIENT_PROMPT_COMMAND_RIGHT = ^starship module custom.git_dirty
+$env.TRANSIENT_PROMPT_COMMAND_RIGHT = ""
+$env.TRANSIENT_PROMPT_INDICATOR = ""
+$env.TRANSIENT_PROMPT_INDICATOR_VI_NORMAL = ""
+$env.TRANSIENT_PROMPT_INDICATOR_VI_INSERT = ""
+$env.TRANSIENT_PROMPT_MULTILINE_INDICATOR = ""
 
 # Starship
 mkdir ($nu.data-dir | path join "vendor/autoload")
