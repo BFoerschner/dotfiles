@@ -3,6 +3,7 @@ $env.GOPATH = ($env.HOME | path join ".local" "gopkg")
 $env.EDITOR = "nvim"
 $env.MANPAGER = "nvim +Man!"
 $env.TERM = "xterm-256color"
+$env.CARAPACE_MATCH = 1 # Disables case-sensitive matching
 $env.PATH = (
     $env.PATH | split row (char esep) | 
     prepend [
