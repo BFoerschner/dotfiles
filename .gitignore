@@ -2,3 +2,5 @@
 .config/iterm2/
 .config/karabiner/automatic_backups/
 .config/lazygit/state.yml
+.config/nushell
+!.config/nushell/config.nu
