@@ -4,6 +4,9 @@ $env.EDITOR = "nvim"
 $env.MANPAGER = "nvim +Man!"
 $env.TERM = "xterm-256color"
 $env.CARAPACE_MATCH = 1 # Disables case-sensitive matching
+$env.LANG = "en_US.UTF-8"
+$env.LANGUAGE = "en_US:en"
+$env.LC_ALL = "en_US.UTF-8"
 $env.PATH = (
     $env.PATH | split row (char esep) | 
     prepend [
