@@ -161,6 +161,7 @@ $env.config = {
 
 # Aliases
 alias .. = cd ..
+alias ll = ls -la
 alias rg = rg --hidden --glob '!.git'
 alias t = tmux new-session -A -s main
 alias lg = lazygit  
