@@ -2,6 +2,36 @@ disableStartupPopups: true
 gui:
   showIcons: true
   nerdFontsVersion: "3"
+  theme:
+    # Monokai NighTasty inspired
+    activeBorderColor:
+      - "#fc1a70" # magenta
+      - bold
+    inactiveBorderColor:
+      - "#8a8a8a" # comment gray
+    searchingActiveBorderColor:
+      - "#62d8f1" # blue/cyan
+      - bold
+    optionsTextColor:
+      - "#62d8f1" # blue
+    selectedLineBgColor:
+      - "#404040" # bg_highlight
+    selectedLineFgColor:
+      - "#ffffff" # white text on selected line
+    inactiveViewSelectedLineBgColor:
+      - "#3e3e3e" # fg_gutter
+    cherryPickedCommitFgColor:
+      - "#af87ff" # purple
+    cherryPickedCommitBgColor:
+      - "#404040"
+    markedBaseCommitFgColor:
+      - "#fc1a70" # magenta
+    markedBaseCommitBgColor:
+      - "#404040"
+    unstagedChangesColor:
+      - "#ff005f" # red
+    defaultFgColor:
+      - "#ffffff" # fg
 git:
   paging:
     colorArg: always
