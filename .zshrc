@@ -4,6 +4,7 @@ if [[ -z "$PS1" && -z "${ZSHRC_FORCE_LOAD:-}" ]]; then
 fi
 
 # Environment Variables
+export XDG_CONFIG_HOME="$HOME/.config"
 export GOPATH="$HOME/.local/gopkg"
 export EDITOR=nvim
 export MANPAGER='nvim +Man!'

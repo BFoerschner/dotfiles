@@ -1,4 +1,5 @@
 # Environment Variables
+$env.XDG_CONFIG_HOME = ($env.HOME | path join ".config")
 $env.GOPATH = ($env.HOME | path join ".local" "gopkg")
 $env.EDITOR = "nvim"
 $env.MANPAGER = "nvim +Man!"

@@ -2,6 +2,7 @@
 [ -z "$PS1" ] && return
 
 # Environment Variables
+export XDG_CONFIG_HOME="$HOME/.config"
 export PATH=/usr/bin:$PATH
 export PATH=/usr/local/bin:$PATH
 export PATH=$HOME/.local/share/fnm:$PATH
