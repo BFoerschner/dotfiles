@@ -157,10 +157,7 @@ alias lg = lazygit
 alias ldo = lazydocker
 alias find = fd
 
-if not ("~/.zoxide.nu" | path expand | path exists) {
-    zoxide init nushell | save -f ~/.zoxide.nu
-}
-source ~/.zoxide.nu
+source ~/.config/nushell/zoxide.nu
 alias cd = __zoxide_z
 alias cdi = __zoxide_zi
 alias cda = zoxide add
