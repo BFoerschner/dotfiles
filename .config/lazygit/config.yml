@@ -34,4 +34,3 @@ git:
   paging:
     colorArg: always
     pager: delta -s --paging=never
-    externalDiffCommand: difft --color=always
