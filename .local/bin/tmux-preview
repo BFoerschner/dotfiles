@@ -1,0 +1,151 @@
+#!/usr/bin/env bash
+# Preview script showing enhanced tree structure for a tmux session
+visual_length() {
+  local text="$1"
+  # First expand the escape sequences, then remove them
+  local expanded_text=$(echo -e "$text")
+  # Remove all ANSI escape sequences (more comprehensive pattern)
+  local clean_text=$(echo -n "$expanded_text" | sed -E 's/\x1b\[[0-9;]*[a-zA-Z]//g')
+  echo ${#clean_text}
+}
+
+get_available_width() {
+  # Try to get terminal width, fallback to reasonable default
+  local term_width
+  if command -v tput >/dev/null 2>&1; then
+    term_width=$(tput cols 2>/dev/null)
+  elif [[ -n "$COLUMNS" ]]; then
+    term_width=$COLUMNS
+  else
+    term_width=80
+  fi
+
+  # For fzf preview, use a bit less than full width to account for margins
+  echo $((term_width))
+}
+
+create_box() {
+  local text="$1"
+  local width="$2"
+  local fill_char="$3"
+  local end_char="$4"
+
+  local result="$text"
+  local visual_len=$(visual_length "$result")
+  local remaining=$((width - visual_len - 2))
+
+  for ((i = 0; i < remaining; i++)); do
+    result+="$fill_char"
+  done
+  result+="$end_char"
+  echo -e "$result"
+}
+
+# Clear lines by printing spaces to fill the entire preview width
+printf '\033[2J\033[H'
+
+session_name="$1"
+
+if [[ -z "$session_name" ]]; then
+  echo "Usage: tmux-preview <session_name>"
+  exit 1
+fi
+
+# Check if session exists
+if ! tmux has-session -t "$session_name" 2>/dev/null; then
+  echo "Session '$session_name' not found"
+  exit 1
+fi
+
+# Get current session to mark it
+current_session=$(tmux display-message -p "#{session_name}" 2>/dev/null)
+
+# Color definitions
+readonly BLUE='\033[1;34m'
+readonly GREEN='\033[1;32m'
+readonly YELLOW='\033[1;33m'
+readonly CYAN='\033[1;36m'
+readonly MAGENTA='\033[1;35m'
+readonly RED='\033[1;31m'
+readonly GRAY='\033[0;37m'
+readonly BOLD='\033[1m'
+readonly DIM='\033[2m'
+readonly RESET='\033[0m'
+# width=60
+width=$(get_available_width)
+
+# Get session info
+session_info=$(tmux list-sessions -t "$session_name" -F "#{session_windows} windows, #{session_attached} clients" 2>/dev/null)
+
+# Session header with simple box
+create_box "${BOLD}┌─${RESET}" "$width" "─" "┐"
+if [[ "$session_name" == "$current_session" ]]; then
+  create_box "│ ${BLUE} $session_name${RESET}" "$width" " " "│"
+else
+  create_box "│ ${GRAY} $session_name${RESET}" "$width" " " "│"
+fi
+create_box "${BOLD}└${RESET}" "$width" "─" "┘"
+echo
+
+# List windows in session
+window_count=0
+tmux list-windows -t "$session_name" -F "#{window_index}:#{window_name}:#{window_active}:#{window_panes}" 2>/dev/null | while read -r window_info; do
+  window_index=$(echo "$window_info" | cut -d: -f1)
+  window_name=$(echo "$window_info" | cut -d: -f2)
+  window_active=$(echo "$window_info" | cut -d: -f3)
+  # window_panes=$(echo "$window_info" | cut -d: -f4)
+
+  ((window_count++))
+
+  # Window header with simple box
+  if [[ "$window_active" == "1" ]]; then
+    create_box "${GREEN}┌─ $window_name ${RESET}" "$width" "─" "┐"
+  else
+    create_box "${GRAY}┌─ $window_name ${RESET}" "$width" "─" "┐"
+  fi
+
+  # List panes in window
+  pane_count=0
+  total_panes=$(tmux list-panes -t "${session_name}:${window_index}" | wc -l)
+
+  tmux list-panes -t "${session_name}:${window_index}" -F "#{pane_index}:#{pane_active}:#{pane_current_command}:#{pane_current_path}" 2>/dev/null | while read -r pane_info; do
+    # pane_index=$(echo "$pane_info" | cut -d: -f1)
+    pane_active=$(echo "$pane_info" | cut -d: -f2)
+    pane_command=$(echo "$pane_info" | cut -d: -f3)
+    pane_path=$(echo "$pane_info" | cut -d: -f4)
+
+    ((pane_count++))
+
+    # Determine pane connector
+    if [[ $pane_count -eq $total_panes ]]; then
+      connector=" └─"
+    else
+      connector=" ├─"
+    fi
+
+    # Format directory path
+
+    dir_name=$(basename "$pane_path")
+    if [[ ${#pane_path} -gt 25 ]]; then
+      short_path=".../${pane_path: -22}"
+    else
+      short_path="$pane_path"
+    fi
+
+    # Combined pane display with program and directory on one line
+    if [[ "$pane_active" == "1" ]]; then
+      output="│ ${GREEN}$connector $pane_command${RESET}"
+      create_box "$output" "$width" " " "│"
+    else
+      output="│ ${YELLOW}$connector $pane_command ${GRAY}${DIM}($dir_name)${RESET}"
+      create_box "$output" "$width" " " "│"
+    fi
+
+  done
+
+  create_box "${GRAY}└${RESET}" "$width" "─" "┘"
+  echo
+done
+
+#  echo -e "${GRAY}└─────────────────────────────────────${RESET}"
+#   - Window headers: 45 chars available (50 - 5 for ┌─ and ┐)
