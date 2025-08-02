@@ -2,10 +2,13 @@
 # Preview script showing enhanced tree structure for a tmux session
 visual_length() {
   local text="$1"
+  local expanded_text
+  local clean_text
+
   # First expand the escape sequences, then remove them
-  local expanded_text=$(echo -e "$text")
+  expanded_text=$(echo -e "$text")
   # Remove all ANSI escape sequences (more comprehensive pattern)
-  local clean_text=$(echo -n "$expanded_text" | sed -E 's/\x1b\[[0-9;]*[a-zA-Z]//g')
+  clean_text=$(echo -n "$expanded_text" | sed -E 's/\x1b\[[0-9;]*[a-zA-Z]//g')
   echo ${#clean_text}
 }
 
@@ -24,20 +27,26 @@ get_available_width() {
   echo $((term_width))
 }
 
-create_box() {
-  local text="$1"
-  local width="$2"
-  local fill_char="$3"
-  local end_char="$4"
+create_box_line_new() {
+  local box_start="$1"
+  local left_text="$2"
+  local right_text="$3"
+  local width="$4"
+  local fill_char="$5"
+  local box_end="$6"
+  local text_color="$7"
+  local box_border_color="$8"
 
-  local result="$text"
-  local visual_len=$(visual_length "$result")
-  local remaining=$((width - visual_len - 2))
+  local result="$box_border_color$box_start$RESET$text_color$left_text$RESET"
+  local visual_len
+  visual_len=$(visual_length "$result")
+  visual_len_right=$(visual_length "$right_text$box_end")
+  local remaining=$((width - visual_len - visual_len_right))
 
   for ((i = 0; i < remaining; i++)); do
-    result+="$fill_char"
+    result+="$box_border_color$fill_char$RESET"
   done
-  result+="$end_char"
+  result+="$text_color$DIM$right_text$RESET$box_border_color$box_end$RESET"
   echo -e "$result"
 }
 
@@ -78,13 +87,17 @@ width=$(get_available_width)
 session_info=$(tmux list-sessions -t "$session_name" -F "#{session_windows} windows, #{session_attached} clients" 2>/dev/null)
 
 # Session header with simple box
-create_box "${BOLD}┌─${RESET}" "$width" "─" "┐"
 if [[ "$session_name" == "$current_session" ]]; then
-  create_box "│ ${BLUE} $session_name${RESET}" "$width" " " "│"
+  text_color="$BOLD$MAGENTA"
+  border_color="$RED"
 else
-  create_box "│ ${GRAY} $session_name${RESET}" "$width" " " "│"
+  text_color="$CYAN"
+  border_color="$YELLOW"
 fi
-create_box "${BOLD}└${RESET}" "$width" "─" "┘"
+create_box_line_new "┌" "" "" "$width" "─" "┐" "$text_color" "$border_color"
+create_box_line_new "│" " $session_name " "" "$width" " " "│" "$text_color" "$border_color"
+create_box_line_new "└" "" "" "$width" "─" "┘" "$text_color" "$border_color"
+
 echo
 
 # List windows in session
@@ -99,10 +112,13 @@ tmux list-windows -t "$session_name" -F "#{window_index}:#{window_name}:#{window
 
   # Window header with simple box
   if [[ "$window_active" == "1" ]]; then
-    create_box "${GREEN}┌─ $window_name ${RESET}" "$width" "─" "┐"
+    text_color="$BOLD$MAGENTA"
+    border_color="$RED"
   else
-    create_box "${GRAY}┌─ $window_name ${RESET}" "$width" "─" "┐"
+    text_color="$CYAN"
+    border_color="$YELLOW"
   fi
+  create_box_line_new "┌" " $window_name " "" "$width" "─" "┐" "$text_color" "$border_color"
 
   # List panes in window
   pane_count=0
@@ -123,29 +139,20 @@ tmux list-windows -t "$session_name" -F "#{window_index}:#{window_name}:#{window
       connector=" ├─"
     fi
 
-    # Format directory path
-
-    dir_name=$(basename "$pane_path")
-    if [[ ${#pane_path} -gt 25 ]]; then
-      short_path=".../${pane_path: -22}"
+    dir_name=$(realpath --relative-to="${HOME}" "${pane_path}")
+    if [[ ${#dir_name} -gt 25 ]]; then
+      short_path=".../${dir_name: -22}"
     else
-      short_path="$pane_path"
+      short_path="~/$dir_name"
     fi
 
     # Combined pane display with program and directory on one line
-    if [[ "$pane_active" == "1" ]]; then
-      output="│ ${GREEN}$connector $pane_command${RESET}"
-      create_box "$output" "$width" " " "│"
-    else
-      output="│ ${YELLOW}$connector $pane_command ${GRAY}${DIM}($dir_name)${RESET}"
-      create_box "$output" "$width" " " "│"
-    fi
-
+    text_color="$GRAY"
+    # if [[ "$pane_active" == "1" ]]; then
+    #   text_color="$GREEN"
+    # else
+    # fi
+    create_box_line_new "│" "$connector $pane_command " "($short_path) " "$width" " " "│" "$text_color" "$border_color"
   done
-
-  create_box "${GRAY}└${RESET}" "$width" "─" "┘"
-  echo
+  create_box_line_new "└" "" "" "$width" "─" "┘" "$GRAY" "$border_color"
 done
-
-#  echo -e "${GRAY}└─────────────────────────────────────${RESET}"
-#   - Window headers: 45 chars available (50 - 5 for ┌─ and ┐)
