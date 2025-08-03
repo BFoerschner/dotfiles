@@ -21,13 +21,13 @@ selected_session=$(
   echo "$sessions" | fzf \
     --reverse \
     --border \
-    --header="Select tmux session | Ctrl-D to delete | Ctrl-C to create" \
+    --header="Select tmux session | Enter to select | Ctrl-D to delete | Ctrl-C to create" \
     --header-first \
     --prompt="Session> " \
     --preview="$HOME/.local/bin/tmux-preview {}" \
     --preview-window=right \
     --bind="ctrl-d:execute(bash -c 'tmux kill-session -t {}')+reload:bash -c \"tmux list-sessions -F '#{session_name}' 2>/dev/null | tac || echo ''\"" \
-    --bind="ctrl-c:execute(bash -c 'read -p \"Enter session name: \" name && tmux new-session -d -s \"\$name\"')+reload:bash -c \"tmux list-sessions -F '#{session_name}' 2>/dev/null | tac || echo ''\""
+    --bind="ctrl-c:execute(bash -c 'read -p \"Enter session name: \" name && if tmux has-session -t \"=\$name\" 2>/dev/null; then echo \"Warning: Session '\$name' already exists!\"; read -p \"Press Enter to continue...\"; else tmux new-session -d -s \"\$name\"; fi; clear')+reload:bash -c \"tmux list-sessions -F '#{session_name}' 2>/dev/null | tac || echo ''\""
 )
 
 # If a session was selected, switch to it
