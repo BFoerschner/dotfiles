@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 # Script to show fzf session picker
 
-sessions=$(tmux list-sessions -F "#{session_name}" 2>/dev/null | tac)
+get_sessions() {
+  tmux list-sessions -F "#{session_name}" 2>/dev/null | tac
+}
+
+sessions=$(get_sessions)
 
 # Check if there are any sessions
 if [ -z "$sessions" ]; then
@@ -17,11 +21,12 @@ selected_session=$(
   echo "$sessions" | fzf \
     --reverse \
     --border \
-    --header="Select tmux session (current: $current_session)" \
+    --header="Select tmux session (current: $current_session) | Ctrl-D to delete" \
     --header-first \
     --prompt="Session> " \
     --preview="$HOME/.local/bin/tmux-preview {}" \
-    --preview-window=right
+    --preview-window=right \
+    --bind="ctrl-d:execute(bash -c 'tmux kill-session -t {}')+reload:bash -c \"tmux list-sessions -F '#{session_name}' 2>/dev/null | tac || echo ''\""
 )
 
 # If a session was selected, switch to it
