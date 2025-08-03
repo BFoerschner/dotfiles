@@ -30,11 +30,6 @@ create_session() {
   local session_name="$1"
   local project_dir="$2"
 
-  if session_exists "$session_name"; then
-    echo "  Session '$session_name' already exists, skipping..."
-    return 0
-  fi
-
   echo "  Creating session '$session_name' for '$project_dir'"
 
   if [ "$DETACHED" = "true" ]; then
@@ -46,6 +41,7 @@ create_session() {
 
 # Counter for found projects
 project_count=0
+new_sessions_created=0
 
 # Scan directory for git projects
 for dir in "$TARGET_DIR"/*; do
@@ -57,8 +53,11 @@ for dir in "$TARGET_DIR"/*; do
       # Additional check: make sure this isn't a submodule by checking parent
       parent_dir=$(dirname "$dir")
       if ! is_git_repo "$parent_dir"; then
-        create_session "$basename_dir" "$dir"
         ((project_count++))
+        if ! session_exists "$basename_dir"; then
+          create_session "$basename_dir" "$dir"
+          ((new_sessions_created++))
+        fi
       else
         echo "  Skipping '$basename_dir' (appears to be a submodule or nested repo)"
       fi
@@ -69,7 +68,11 @@ done
 echo
 if [ $project_count -eq 0 ]; then
   echo "No git projects found in '$TARGET_DIR'"
+elif [ $new_sessions_created -eq 0 ]; then
+  echo "All git projects already have sessions, no new sessions created"
+  exit 0
 else
+  echo "Created $new_sessions_created new session(s)"
   echo "Available sessions:"
   tmux list-sessions 2>/dev/null | grep -E "^[^:]+:" | cut -d: -f1 | sort | sed 's/^/- /'
 fi
