@@ -88,15 +88,15 @@ session_info=$(tmux list-sessions -t "$session_name" -F "#{session_windows} wind
 
 # Session header with simple box
 if [[ "$session_name" == "$current_session" ]]; then
-  text_color="$BOLD$MAGENTA"
+  text_color="$MAGENTA"
   border_color="$RED"
 else
-  text_color="$CYAN"
-  border_color="$YELLOW"
+  text_color="$MAGENTA"
+  border_color="$RED"
 fi
-create_box_line_new "┌" "" "" "$width" "─" "┐" "$text_color" "$border_color"
-create_box_line_new "│" " $session_name " "" "$width" " " "│" "$text_color" "$border_color"
-create_box_line_new "└" "" "" "$width" "─" "┘" "$text_color" "$border_color"
+create_box_line_new "SESSION " "[$session_name] " "" "$width" "─" "─" "$text_color" "$border_color"
+# create_box_line_new "│" " $session_name " "" "$width" " " "│" "$text_color" "$border_color"
+# create_box_line_new "└" "" "" "$width" "─" "┘" "$text_color" "$border_color"
 
 echo
 
@@ -112,11 +112,11 @@ tmux list-windows -t "$session_name" -F "#{window_index}:#{window_name}:#{window
 
   # Window header with simple box
   if [[ "$window_active" == "1" ]]; then
-    text_color="$BOLD$MAGENTA"
+    text_color="$CYAN"
     border_color="$RED"
   else
     text_color="$CYAN"
-    border_color="$YELLOW"
+    border_color="$RED"
   fi
   create_box_line_new "┌" " $window_name " "" "$width" "─" "┐" "$text_color" "$border_color"
 
