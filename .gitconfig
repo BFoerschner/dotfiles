@@ -48,6 +48,7 @@
   ca = commit --amend
   ci = commit --interactive
   cm = commit --message
+  ccm = !git commit --message \"$(claude -p 'create a git commit message for the currently staged files. It has to conform to conventional commit messages. Do not include other explanations, I want to use the text you output directly')\" && git commit --amend
   cam = commit --amend --message
   cane = commit --amend --no-edit
   caa = commit --amend --all
