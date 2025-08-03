@@ -94,7 +94,7 @@ else
   text_color="$MAGENTA"
   border_color="$RED"
 fi
-create_box_line_new "SESSION " "[$session_name] " "" "$width" "─" "─" "$text_color" "$border_color"
+create_box_line_new "" "[$session_name] " "" "$width" "─" "─" "$text_color" "$border_color"
 # create_box_line_new "│" " $session_name " "" "$width" " " "│" "$text_color" "$border_color"
 # create_box_line_new "└" "" "" "$width" "─" "┘" "$text_color" "$border_color"
 
