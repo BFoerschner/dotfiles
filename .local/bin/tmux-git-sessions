@@ -43,10 +43,13 @@ create_session() {
 project_count=0
 new_sessions_created=0
 
-# Scan directory for git projects
+# Scan directory for git projects (including hidden directories)
+shopt -s dotglob nullglob
 for dir in "$TARGET_DIR"/*; do
   if [ -d "$dir" ]; then
     basename_dir=$(basename "$dir")
+    # Remove leading dots from session names
+    session_name=${basename_dir#.}
 
     # Check if it's a git repository (but not a submodule or nested git repo)
     if is_git_repo "$dir"; then
@@ -54,8 +57,8 @@ for dir in "$TARGET_DIR"/*; do
       parent_dir=$(dirname "$dir")
       if ! is_git_repo "$parent_dir"; then
         ((project_count++))
-        if ! session_exists "$basename_dir"; then
-          create_session "$basename_dir" "$dir"
+        if ! session_exists "$session_name"; then
+          create_session "$session_name" "$dir"
           ((new_sessions_created++))
         fi
       else
@@ -64,6 +67,7 @@ for dir in "$TARGET_DIR"/*; do
     fi
   fi
 done
+shopt -u dotglob nullglob
 
 echo
 if [ $project_count -eq 0 ]; then

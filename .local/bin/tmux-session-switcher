@@ -1,12 +1,22 @@
 #!/usr/bin/env bash
 # Script to show fzf session picker
 
-# Auto-populate sessions from git repositories if environment variable is set
-if [ -n "$TMUX_AUTO_POPULATE_SESSIONS" ]; then
-  git_dir="${TMUX_GIT_PROJECTS_DIR:-$HOME/host}"
-  if [ -d "$git_dir" ]; then
-    "$HOME/.local/bin/tmux-git-sessions" "$git_dir" true >/dev/null 2>&1
-  fi
+# Function to scan directories for git projects
+scan_git_projects() {
+  local directories=("$@")
+  
+  for dir in "${directories[@]}"; do
+    if [ -d "$dir" ]; then
+      "$HOME/.local/bin/tmux-git-sessions" "$dir" true >/dev/null 2>&1
+    fi
+  done
+}
+
+# Auto-populate sessions from git repositories
+if [ -n "$TMUX_AUTO_POPULATE_SESSIONS" ] && [ -n "$TMUX_GIT_PROJECTS_DIRS" ]; then
+  # Split the directories by colon and scan each one
+  IFS=':' read -ra DIRS <<< "$TMUX_GIT_PROJECTS_DIRS"
+  scan_git_projects "${DIRS[@]}"
 fi
 
 get_sessions() {
@@ -37,7 +47,7 @@ selected_session=$(
     --preview-window=right \
     --bind="ctrl-d:execute(bash -c 'tmux kill-session -t {}')+reload:bash -c \"tmux list-sessions -F '#{session_name}' 2>/dev/null | tac || echo ''\"" \
     --bind="ctrl-c:execute(bash -c 'read -p \"Enter session name: \" name && if tmux has-session -t \"=\$name\" 2>/dev/null; then echo \"Warning: Session '\$name' already exists!\"; read -p \"Press Enter to continue...\"; else tmux new-session -d -s \"\$name\"; fi; clear')+reload:bash -c \"tmux list-sessions -F '#{session_name}' 2>/dev/null | tac || echo ''\"" \
-    --bind="ctrl-r:execute-silent(bash -c 'git_dir=\"\${TMUX_GIT_PROJECTS_DIR:-\$HOME/host}\"; \$HOME/.local/bin/tmux-git-sessions \"\$git_dir\" true >/dev/null 2>&1')+reload:bash -c \"tmux list-sessions -F '#{session_name}' 2>/dev/null | tac || echo ''\""
+    --bind="ctrl-r:execute-silent(bash -c 'if [ -n \"\$TMUX_GIT_PROJECTS_DIRS\" ]; then IFS=\":\" read -ra DIRS <<< \"\$TMUX_GIT_PROJECTS_DIRS\"; for dir in \"\${DIRS[@]}\"; do [ -d \"\$dir\" ] && \$HOME/.local/bin/tmux-git-sessions \"\$dir\" true >/dev/null 2>&1; done; fi')+reload:bash -c \"tmux list-sessions -F '#{session_name}' 2>/dev/null | tac || echo ''\""
 )
 
 # If a session was selected, switch to it
