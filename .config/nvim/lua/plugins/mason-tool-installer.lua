@@ -21,7 +21,6 @@ return {
       "svelte",
       "marksman",
       "taplo",
-      "harper-ls",
 
       "js-debug-adapter",
       "codelldb",
