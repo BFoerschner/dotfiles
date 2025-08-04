@@ -13,7 +13,7 @@ $env.LANG = "en_US.UTF-8"
 $env.LANGUAGE = "en_US:en"
 $env.LC_ALL = "en_US.UTF-8"
 $env.TMUX_GIT_PROJECTS_DIRS = [
-  ($env.HOME)
+  ($env.HOME)/.local/share
   ($env.HOME)/host
 ] | str join ":"
 $env.TMUX_AUTO_POPULATE_SESSIONS = 1
