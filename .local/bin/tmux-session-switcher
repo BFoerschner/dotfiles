@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 # Script to show fzf session picker
 
+# Auto-populate sessions from git repositories if environment variable is set
+if [ -n "$TMUX_AUTO_POPULATE_SESSIONS" ]; then
+  git_dir="${TMUX_GIT_PROJECTS_DIR:-$HOME/host}"
+  if [ -d "$git_dir" ]; then
+    "$HOME/.local/bin/tmux-git-sessions" "$git_dir" true >/dev/null 2>&1
+  fi
+fi
+
 get_sessions() {
   # List all current sessions
   tmux list-sessions -F "#{session_name}" 2>/dev/null | tac
