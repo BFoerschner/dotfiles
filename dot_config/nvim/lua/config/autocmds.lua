@@ -2,6 +2,9 @@
 -- Default autocmds that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
 -- Add any additional autocmds here
 
+-- Load LSP manual filetype fix
+require("config.lsp-manual-filetype")
+
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "markdown",
   callback = function()
