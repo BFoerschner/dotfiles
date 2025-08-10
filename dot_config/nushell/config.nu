@@ -170,7 +170,7 @@ alias cdr = zoxide remove
 
 # preserve PATH with sudo
 def --env sudo [...args] {
-  sudo env $"PATH=($env.PATH | str join ':')" ...$args
+  ^sudo env $"PATH=($env.PATH | str join ':')" ...$args
 }
 
 $env.STARSHIP_SHELL = "nu"
