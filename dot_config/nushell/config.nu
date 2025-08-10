@@ -168,6 +168,11 @@ alias cdi = __zoxide_zi
 alias cda = zoxide add
 alias cdr = zoxide remove
 
+# preserve PATH with sudo
+def --env sudo [...args] {
+  sudo env $"PATH=($env.PATH | str join ':')" ...$args
+}
+
 $env.STARSHIP_SHELL = "nu"
 $env.PROMPT_INDICATOR_VI_INSERT = ""
 $env.PROMPT_INDICATOR_VI_NORMAL = "{} "
