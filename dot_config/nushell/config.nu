@@ -5,6 +5,7 @@ $env.XDG_DATA_HOME = ($env.HOME | path join ".local" "share")
 
 # Paths
 $env.GOPATH = ($env.HOME | path join ".local" "gopkg")
+$env.JAVA_HOME = (bash -c "echo $(dirname $(dirname $(readlink -f $(which javac))))")
 $env.EDITOR = "nvim"
 $env.MANPAGER = "nvim +Man!"
 $env.TERM = "xterm-256color"
@@ -22,6 +23,7 @@ $env.PATH = (
     prepend [
         "/usr/bin"
         "/usr/local/bin"
+        ($env.JAVA_HOME | path join "bin")
         ($env.HOME | path join ".local" "share" "fnm")
         ($env.HOME | path join ".local" "share" "go" "bin")
         ($env.GOPATH | path join "bin")
