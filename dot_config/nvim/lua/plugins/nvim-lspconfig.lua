@@ -9,7 +9,10 @@ return {
     end
 
     capabilities.textDocument.completion.completionItem.snippetSupport = false
-    opts.capabilities = capabilities
+
+    opts.servers = opts.servers or {}
+    opts.servers["*"] = opts.servers["*"] or {}
+    opts.servers["*"].capabilities = capabilities
 
     opts.setup = opts.setup or {}
     opts.setup["*"] = function()

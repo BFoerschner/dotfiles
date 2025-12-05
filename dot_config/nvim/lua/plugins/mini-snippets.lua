@@ -1,5 +1,5 @@
 return {
-  "echasnovski/mini.snippets",
+  "nvim-mini/mini.snippets",
   opts = {
     mappings = {
       expand = "",
@@ -8,4 +8,3 @@ return {
     },
   },
 }
-
