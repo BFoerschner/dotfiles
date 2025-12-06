@@ -4,8 +4,7 @@ return {
   event = { "LazyFile", "VeryLazy" },
   lazy = false,
   opts = {
-    ensure_installed = "all",
+    ensure_installed = { "all" },
     sync_install = true,
   },
 }
-
