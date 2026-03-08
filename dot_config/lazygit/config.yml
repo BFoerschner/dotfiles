@@ -31,6 +31,6 @@ gui:
     defaultFgColor:
       - "#ffffff" # fg
 git:
-  paging:
-    colorArg: always
-    pager: delta -s --paging=never
+  pagers:
+    - colorArg: always
+      pager: delta -s --paging=never
