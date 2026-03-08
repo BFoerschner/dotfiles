@@ -48,3 +48,7 @@ pipx = "1.8.0"
 "github:bootandy/dust" = "1.2.4"
 "github:veeso/termscp" = "0.19.1"
 "github:dalance/procs" = "0.14.10"
+
+[tasks.claude-install]
+description = "Install/update Claude Code native binary"
+run = "curl -fsSL https://claude.ai/install.sh | bash"
