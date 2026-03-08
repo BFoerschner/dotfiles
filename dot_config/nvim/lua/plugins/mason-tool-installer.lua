@@ -15,7 +15,7 @@ return {
       "ruff",
       "ansiblels",
       "marksman",
-      "taplo",
+      "tombi",
 
       "codelldb",
       "debugpy",
