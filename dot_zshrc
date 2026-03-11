@@ -78,9 +78,16 @@ zinit wait lucid for \
   Aloxaf/fzf-tab \
   birdhackor/zsh-eza-ls-plugin
 
-# Tmux xpanes
-source "$HOME"/.local/pkg/tmux-xpanes/activate.sh
-source "$HOME"/.local/pkg/tmux-xpanes/completion.zsh
+# # Tmux xpanes
+# source "$HOME"/.local/pkg/tmux-xpanes/activate.sh
+# source "$HOME"/.local/pkg/tmux-xpanes/completion.zsh
+
+# activate mise 
+eval "$(~/.local/bin/mise hook-env -s zsh)"
+
+
+# $(~/.local/share/mise/bin/mise activate zsh)
+
 
 # OMZ plugin snippets
 zinit wait lucid for \

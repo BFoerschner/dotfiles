@@ -1,7 +1,6 @@
 keybind = global:cmd+`=toggle_visibility
-window-decoration = none
-fullscreen=true
 macos-non-native-fullscreen=visible-menu
+macos-titlebar-style=hidden
 
 adjust-underline-position = 8
 adjust-underline-thickness = 1
