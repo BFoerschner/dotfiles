@@ -12,6 +12,7 @@ macos-option-as-alt = "true"
 mouse-hide-while-typing = "true"
 font-thicken = true
 alpha-blending = linear-corrected
+quit-after-last-window-closed = true
 
 font-family = 0xProto
 font-feature = ss01
