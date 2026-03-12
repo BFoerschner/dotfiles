@@ -44,7 +44,6 @@ pipx = "1.8.0"
 "pipx:ansible" = "13.4.0"
 "pipx:ansible-core" = "2.20.3"
 "pipx:stringshift[full]" = "0.1.2"
-"github:bootandy/dust" = "1.2.4"
 "github:veeso/termscp" = "0.19.1"
 "github:dalance/procs" = "0.14.11"
 
