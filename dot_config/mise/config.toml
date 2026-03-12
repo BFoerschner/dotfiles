@@ -50,3 +50,14 @@ pipx = "1.8.0"
 [tasks.claude-install]
 description = "Install/update Claude Code native binary"
 run = "curl -fsSL https://claude.ai/install.sh | bash"
+
+[tasks.tmux-plugins-install]
+description = "Install/update tmux plugins"
+run = """
+  if [ -d "$HOME"/.tmux/plugins/tpm ]; then
+    git -C "$HOME"/.tmux/plugins/tpm pull
+  else
+    git clone https://github.com/tmux-plugins/tpm "$HOME"/.tmux/plugins/tpm
+  fi
+  "$HOME"/.tmux/plugins/tpm/scripts/install_plugins.sh
+"""

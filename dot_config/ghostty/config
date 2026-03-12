@@ -18,6 +18,8 @@ font-feature = ss01
 
 theme = Monokai Soda
 
+clipboard-read = allow
+keybind = super+t=unbind
 keybind = super+d=unbind
 keybind = super+shift+d=unbind
 clipboard-paste-protection=false
