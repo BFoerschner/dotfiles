@@ -190,6 +190,7 @@ alt-shift-0 = "move-node-to-workspace 0"
 # alt-shift-y = "move-node-to-workspace Y"
 # alt-shift-z = "move-node-to-workspace Z"
 alt-shift-f = "fullscreen"
+alt-shift-d = "exec-and-forget bash ~/.config/aerospace/toggle-zoom.sh"
 # See: https://nikitabobko.github.io/AeroSpace/commands#workspace-back-and-forth
 alt-tab = "workspace-back-and-forth"
 # See: https://nikitabobko.github.io/AeroSpace/commands#move-workspace-to-monitor
