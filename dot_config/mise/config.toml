@@ -33,7 +33,6 @@ tmux = "3.6a"
 kubectl = "1.35.2"
 k9s = "0.50.18"
 lnav = "0.13.2"
-neovim = "0.11.6"
 docker-cli = "29.3.0"
 docker-compose = "5.0.2"
 pipx = "1.8.0"
@@ -47,6 +46,7 @@ pipx = "1.8.0"
 "pipx:stringshift[full]" = "0.1.2"
 "github:veeso/termscp" = "0.19.1"
 "github:dalance/procs" = "0.14.11"
+"github:neovim/neovim" = "0.11.6"
 
 [task_config]
 includes = ["tasks"]
