@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+#MISE description="Install/update Claude Code native binary"
+curl -fsSL https://claude.ai/install.sh | bash

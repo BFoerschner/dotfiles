@@ -1,6 +1,7 @@
 [tools]
 go = "1.26.1"
 rust = "1.94.0"
+python = "3.14.3"
 uv = "0.10.9"
 lua = "5.5.0"
 java = "lts"
@@ -47,17 +48,5 @@ pipx = "1.8.0"
 "github:veeso/termscp" = "0.19.1"
 "github:dalance/procs" = "0.14.11"
 
-[tasks.claude-install]
-description = "Install/update Claude Code native binary"
-run = "curl -fsSL https://claude.ai/install.sh | bash"
-
-[tasks.tmux-plugins-install]
-description = "Install/update tmux plugins"
-run = """
-  if [ -d "$HOME"/.tmux/plugins/tpm ]; then
-    git -C "$HOME"/.tmux/plugins/tpm pull
-  else
-    git clone https://github.com/tmux-plugins/tpm "$HOME"/.tmux/plugins/tpm
-  fi
-  "$HOME"/.tmux/plugins/tpm/scripts/install_plugins.sh
-"""
+[task_config]
+includes = ["tasks"]
