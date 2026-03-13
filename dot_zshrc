@@ -171,6 +171,13 @@ if command -v fnm > /dev/null 2>&1; then
   eval "$(fnm env)"
 fi
 
+# GPG Agent with SSH support (YubiKey)
+if command -v gpgconf > /dev/null 2>&1; then
+  export GPG_TTY=$(tty)
+  export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+  gpgconf --launch gpg-agent
+fi
+
 # Cache starship init for faster startup (even though starship already fast af)
 if command -v starship > /dev/null 2>&1; then
   if [[ ! -f ~/.cache/starship-init.zsh || ~/.zshrc -nt ~/.cache/starship-init.zsh ]]; then

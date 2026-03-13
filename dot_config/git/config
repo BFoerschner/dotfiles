@@ -1,6 +1,7 @@
 [user]
   name = Björn Förschner
-  email = 1569796+BFoerschner@users.noreply.github.com
+  email = bjoern@foerschner.dev
+	signingkey = 935293C729ED3170
 [advice]
   defaultBranchName = false
 [diff]
@@ -140,3 +141,7 @@
       echo \"No remote WIP branch found: $b\"; \
     fi; \
   }; f"
+[commit]
+	gpgsign = true
+[gpg]
+	program = /opt/homebrew/bin/gpg
