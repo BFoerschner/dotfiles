@@ -181,7 +181,7 @@ if command -v gpgconf > /dev/null 2>&1; then
 fi
 
 # Claude Code token (decrypted by unlock-secrets)
-_secrets_token_file="/run/user/$(id -u)/secrets/.claude-token"
+_secrets_token_file="/dev/shm/.secrets-$(id -u)/.claude-token"
 if [[ -r "$_secrets_token_file" ]]; then
     export CLAUDE_CODE_OAUTH_TOKEN
     CLAUDE_CODE_OAUTH_TOKEN="$(<"$_secrets_token_file")"
@@ -206,7 +206,7 @@ lock-secrets() {
 
 # Auto-lock secrets when the last SSH session disconnects
 if [[ -n "${SSH_CONNECTION:-}" ]]; then
-    _SECRETS_RAMDIR="/run/user/$(id -u)/secrets"
+    _SECRETS_RAMDIR="/dev/shm/.secrets-$(id -u)"
     _MY_PID=$$
     if [[ -d "$_SECRETS_RAMDIR" ]]; then
         echo "$_MY_PID" >> "$_SECRETS_RAMDIR/.sessions"
