@@ -174,19 +174,51 @@ fi
 # GPG Agent with SSH support (YubiKey)
 if command -v gpgconf > /dev/null 2>&1; then
   export GPG_TTY=$(tty)
-  export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
-  gpgconf --launch gpg-agent
+  if [[ -z "${SSH_CONNECTION:-}" ]]; then
+    export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+    gpgconf --launch gpg-agent
+  fi
 fi
+
+# Claude Code token (decrypted by unlock-secrets)
+_secrets_token_file="/run/user/$(id -u)/secrets/.claude-token"
+if [[ -r "$_secrets_token_file" ]]; then
+    export CLAUDE_CODE_OAUTH_TOKEN
+    CLAUDE_CODE_OAUTH_TOKEN="$(<"$_secrets_token_file")"
+fi
+
+# Shell wrappers so unlock/lock affect the current shell
+unlock-secrets() {
+    command unlock-secrets "$@" || return $?
+    if [[ -r "$_secrets_token_file" ]]; then
+        export CLAUDE_CODE_OAUTH_TOKEN
+        CLAUDE_CODE_OAUTH_TOKEN="$(<"$_secrets_token_file")"
+    fi
+    # Register this session now that RAMDIR exists
+    if [[ -n "${SSH_CONNECTION:-}" && -d "$_SECRETS_RAMDIR" ]]; then
+        echo "$_MY_PID" >> "$_SECRETS_RAMDIR/.sessions"
+    fi
+}
+lock-secrets() {
+    command lock-secrets "$@"
+    unset CLAUDE_CODE_OAUTH_TOKEN
+}
 
 # Auto-lock secrets when the last SSH session disconnects
 if [[ -n "${SSH_CONNECTION:-}" ]]; then
-    LOCKFILE="${XDG_RUNTIME_DIR:-/tmp}/.secrets-sessions-$(id -u)"
-    echo $$ >> "$LOCKFILE"
+    _SECRETS_RAMDIR="/run/user/$(id -u)/secrets"
+    _MY_PID=$$
+    if [[ -d "$_SECRETS_RAMDIR" ]]; then
+        echo "$_MY_PID" >> "$_SECRETS_RAMDIR/.sessions"
+    fi
     trap '
-        sed -i "/^$$$/d" "$LOCKFILE" 2>/dev/null
-        if [[ ! -s "$LOCKFILE" ]]; then
-            lock-secrets 2>/dev/null
+        if [[ -f "$_SECRETS_RAMDIR/.sessions" ]]; then
+            sed -i "/^${_MY_PID}$/d" "$_SECRETS_RAMDIR/.sessions" 2>/dev/null
+            if [[ ! -s "$_SECRETS_RAMDIR/.sessions" ]]; then
+                lock-secrets 2>/dev/null
+            fi
         fi
+        unset CLAUDE_CODE_OAUTH_TOKEN
     ' EXIT
 fi
 
