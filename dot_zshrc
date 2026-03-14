@@ -178,6 +178,18 @@ if command -v gpgconf > /dev/null 2>&1; then
   gpgconf --launch gpg-agent
 fi
 
+# Auto-lock secrets when the last SSH session disconnects
+if [[ -n "${SSH_CONNECTION:-}" ]]; then
+    LOCKFILE="${XDG_RUNTIME_DIR:-/tmp}/.secrets-sessions-$(id -u)"
+    echo $$ >> "$LOCKFILE"
+    trap '
+        sed -i "/^$$$/d" "$LOCKFILE" 2>/dev/null
+        if [[ ! -s "$LOCKFILE" ]]; then
+            lock-secrets 2>/dev/null
+        fi
+    ' EXIT
+fi
+
 # Cache starship init for faster startup (even though starship already fast af)
 if command -v starship > /dev/null 2>&1; then
   if [[ ! -f ~/.cache/starship-init.zsh || ~/.zshrc -nt ~/.cache/starship-init.zsh ]]; then

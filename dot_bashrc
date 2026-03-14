@@ -13,3 +13,15 @@ export PATH=$HOME/.local/bin:$PATH
 
 eval "$(mise activate bash)"
 eval "$(starship init bash)"
+
+# Auto-lock secrets when the last SSH session disconnects
+if [[ -n "${SSH_CONNECTION:-}" ]]; then
+    LOCKFILE="${XDG_RUNTIME_DIR:-/tmp}/.secrets-sessions-$(id -u)"
+    echo $$ >> "$LOCKFILE"
+    trap '
+        sed -i "/^$$$/d" "$LOCKFILE" 2>/dev/null
+        if [[ ! -s "$LOCKFILE" ]]; then
+            lock-secrets 2>/dev/null
+        fi
+    ' EXIT
+fi
