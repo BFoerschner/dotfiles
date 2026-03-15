@@ -218,4 +218,5 @@ alt-shift-l = ["join-with right", "mode main"]
 [mode.terminal.binding]
 alt-shift-t = "mode main"
 alt-shift-f = "fullscreen"
+alt-shift-d = "exec-and-forget bash ~/.config/aerospace/toggle-zoom.sh"
 alt-enter = "exec-and-forget /Applications/Ghostty.app/Contents/MacOS/ghostty"
