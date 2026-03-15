@@ -42,15 +42,44 @@ setopt \
 	hist_ignore_dups \
 	hist_find_no_dups
 
-# Cache Homebrew prefix and paths (only if available and not Apple Terminal)
-if [[ "$TERM_PROGRAM" != "Apple_Terminal" && -x "$(command -v brew)" ]]; then
-  if [[ -z "$HOMEBREW_PREFIX" ]]; then
-    export HOMEBREW_PREFIX=$(brew --prefix)
+# Helper: cache an eval to disk, re-generate when zshrc changes
+# Usage: _cached_eval <cache-name> <command> [args...]
+_cached_eval() {
+  local name=$1; shift
+  local cache="$HOME/.cache/zsh-eval-${name}.zsh"
+  if [[ ! -f "$cache" || ~/.zshrc -nt "$cache" ]]; then
+    mkdir -p "$HOME/.cache"
+    local tmp
+    tmp=$(mktemp "$HOME/.cache/zsh-eval-${name}.XXXXXX")
+    if "$@" > "$tmp" 2>/dev/null && [[ -s "$tmp" ]]; then
+      mv "$tmp" "$cache"
+    else
+      rm -f "$tmp"
+      [[ -f "$cache" ]] || return 1
+    fi
   fi
-  # Only add existing GNU bin directories
-  for d in "${HOMEBREW_PREFIX}"/opt/{coreutils,findutils,gnu-tar,gnu-sed,gawk,gnutls,gnu-indent,gnu-getopt}/libexec/gnubin; do
-    [[ -d "$d" ]] && path=("$d" "${path[@]}")
-  done
+  source "$cache"
+}
+
+# Cache Homebrew prefix and paths (only if available and not Apple Terminal)
+if [[ "$TERM_PROGRAM" != "Apple_Terminal" ]]; then
+  # Persist HOMEBREW_PREFIX across sessions
+  if [[ -z "$HOMEBREW_PREFIX" ]]; then
+    _brew_cache="$HOME/.cache/zsh-brew-prefix"
+    if [[ ! -f "$_brew_cache" || ~/.zshrc -nt "$_brew_cache" ]]; then
+      if (( $+commands[brew] )); then
+        mkdir -p "$HOME/.cache"
+        brew --prefix > "$_brew_cache" 2>/dev/null
+      fi
+    fi
+    [[ -f "$_brew_cache" ]] && export HOMEBREW_PREFIX=$(<"$_brew_cache")
+  fi
+  if [[ -n "$HOMEBREW_PREFIX" ]]; then
+    # Only add existing GNU bin directories
+    for d in "${HOMEBREW_PREFIX}"/opt/{coreutils,findutils,gnu-tar,gnu-sed,gawk,gnutls,gnu-indent,gnu-getopt}/libexec/gnubin; do
+      [[ -d "$d" ]] && path=("$d" "${path[@]}")
+    done
+  fi
 fi
 
 # Zinit (lazy initialization with better error handling)
@@ -67,46 +96,92 @@ if [[ ! -d "$ZINIT_HOME" ]]; then
 fi
 source "$ZINIT_HOME/zinit.zsh"
 
-# Load plugins asynchronously with wait since these take way too long to load
-zinit wait lucid for \
-  atload"zicompinit; zicdreplay" blockf \
+# Generate and cache tool completions into fpath (lazy-loaded by compinit)
+_comp_cache="$HOME/.cache/zsh-completions"
+if [[ ! -d "$_comp_cache" || ~/.zshrc -nt "$_comp_cache" ]]; then
+  mkdir -p "$_comp_cache"
+  # Each entry: completion-filename command [args...]
+  typeset -A _comp_cmds=(
+    [_rustup]="rustup completions zsh"
+    [_cargo]="rustup completions zsh cargo"
+    [_uv]="uv generate-shell-completion zsh"
+    [_yq]="yq shell-completion zsh"
+    [_just]="just --completions zsh"
+    [_gh]="gh completion -s zsh"
+    [_kubectl]="kubectl completion zsh"
+    [_k9s]="k9s completion zsh"
+    [_docker]="docker completion zsh"
+    [_bat]="bat --completion zsh"
+    [_fd]="fd --gen-completions zsh"
+    [_delta]="delta --generate-completion zsh"
+    [_rg]="rg --generate complete-zsh"
+    [_procs]="procs --gen-completion-out zsh"
+  )
+  for comp cmd in "${(@kv)_comp_cmds}"; do
+    bin=${cmd%% *}
+    if (( $+commands[$bin] )); then
+      ${(z)cmd} > "$_comp_cache/$comp" 2>/dev/null
+    fi
+  done
+  # sops generates a broken completion (wrong function name), patch it
+  if (( $+commands[sops] )); then
+    sops completion zsh 2>/dev/null \
+      | sed '/^$/d; s/_cli_zsh_autocomplete/_sops/g; /^compdef /d' \
+      > "$_comp_cache/_sops"
+  fi
+  touch "$_comp_cache"
+  # Invalidate zcompdump so compinit rescans fpath
+  rm -f ~/.zcompdump(N) ~/.zcompdump.*(N)
+fi
+fpath=("$_comp_cache" $fpath)
+
+# Phase 1: load completion definitions + fzf-tab (must be before compinit)
+zinit wait"0a" lucid for \
+  blockf \
     zsh-users/zsh-completions \
+  Aloxaf/fzf-tab
+
+# Phase 2: init compinit once, then syntax highlighting + autosuggestions
+zinit wait"0b" lucid for \
   atinit"ZINIT[COMPINIT_OPTS]=-C; zicompinit; zicdreplay" \
     zdharma-continuum/fast-syntax-highlighting \
   atload"!_zsh_autosuggest_start" \
-    zsh-users/zsh-autosuggestions \
-  Aloxaf/fzf-tab \
-  birdhackor/zsh-eza-ls-plugin
+    zsh-users/zsh-autosuggestions
 
-# # Tmux xpanes
-# source "$HOME"/.local/pkg/tmux-xpanes/activate.sh
-# source "$HOME"/.local/pkg/tmux-xpanes/completion.zsh
+# activate mise (cached)
+if [[ -x "$HOME/.local/bin/mise" ]]; then
+  _cached_eval mise "$HOME/.local/bin/mise" hook-env -s zsh
+fi
 
-# activate mise 
-eval "$(~/.local/bin/mise hook-env -s zsh)"
-
-
-# $(~/.local/share/mise/bin/mise activate zsh)
-
-
-# OMZ plugin snippets
-zinit wait lucid for \
+# Phase 3: OMZ snippets (after completion system is ready)
+zinit wait"0c" lucid for \
   OMZL::git.zsh \
   OMZP::git \
   OMZP::git-commit \
   OMZP::gitignore \
   OMZP::sudo \
-  OMZP::archlinux \
   OMZP::brew \
   OMZP::extract \
   OMZP::command-not-found \
   OMZP::ansible
 
+# Phase 3b: OMZ plugins with completion files (load plugin + completion separately)
+zinit wait"0c" lucid for \
+  OMZP::terraform \
+  OMZP::docker-compose \
+  OMZP::mvn
+zinit wait"0c" lucid as"completion" for \
+  OMZP::terraform/_terraform \
+  OMZP::docker-compose/_docker-compose
+
+# Load archlinux plugin only on Linux
+[[ "$OSTYPE" == linux* ]] && zinit wait"0c" lucid for OMZP::archlinux
+
 # Completion Styling
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 zstyle ':completion:*' menu no
-zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color "${realpath}"'
 zstyle ':completion:*:*:docker:*' option-stacking yes
 zstyle ':completion:*:*:docker-*:*' option-stacking yes
 
@@ -125,9 +200,9 @@ export FZF_ALT_C_OPTS="
   --tmux=80%
   --preview='tree -C {}'"
 
-# Load FZF key bindings (Ctrl+T / Alt+C)
-if command -v fzf > /dev/null 2>&1; then
-  eval "$(fzf --zsh)"
+# Load FZF key bindings (cached)
+if (( $+commands[fzf] )); then
+  _cached_eval fzf fzf --zsh
 fi
 
 # Aliases
@@ -135,48 +210,41 @@ alias gig='gi $(gi list &>/dev/null | tr "," "\n" | fzf)'
 alias ..='cd ..'
 alias rg="rg --hidden --glob '!.git'"
 alias t="tmux new-session -A -s main"
-alias llm="llm"
 alias lg="lazygit"
 alias ldo="lazydocker"
 
-# Enhanced aliases (only add if tools are available)
-if command -v eza > /dev/null 2>&1; then
+# Enhanced aliases — use $+commands[] (zsh hash lookup, no fork)
+(( $+commands[eza] )) && {
   alias ls='eza --icons --git'
   alias ll='eza -l --icons --git'
   alias la='eza -la --icons --git'
   alias tree='eza --tree --icons'
-fi
+}
+(( $+commands[bat] ))   && alias cat='bat --paging=never'
+(( $+commands[fd] ))    && alias find='fd'
+(( $+commands[dust] ))  && alias du='dust'
+(( $+commands[duf] ))   && alias df='duf'
+(( $+commands[procs] )) && alias ps='procs'
 
-if command -v bat > /dev/null 2>&1; then
-  alias cat='bat --paging=never'
-fi
-
-if command -v fd > /dev/null 2>&1; then
-  alias find='fd'
-fi
-
-if command -v dust > /dev/null 2>&1; then
-  alias du='dust'
-fi
-
-if command -v duf > /dev/null 2>&1; then
-  alias df='duf'
-fi
-
-if command -v procs > /dev/null 2>&1; then
-  alias ps='procs'
-fi
-
-if command -v fnm > /dev/null 2>&1; then
-  eval "$(fnm env)"
+# fnm — lazy-load on first use of node/npm/npx/fnm
+if (( $+commands[fnm] )); then
+  _fnm_lazy_load() {
+    unfunction node npm npx fnm 2>/dev/null
+    eval "$(fnm env)"
+    "$@"
+  }
+  node()  { _fnm_lazy_load node  "$@" }
+  npm()   { _fnm_lazy_load npm   "$@" }
+  npx()   { _fnm_lazy_load npx   "$@" }
+  fnm()   { _fnm_lazy_load fnm   "$@" }
 fi
 
 # GPG Agent with SSH support (YubiKey)
-if command -v gpgconf > /dev/null 2>&1; then
+if (( $+commands[gpgconf] )); then
   export GPG_TTY=$(tty)
   if [[ -z "${SSH_CONNECTION:-}" ]]; then
     export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
-    gpgconf --launch gpg-agent
+    gpgconf --launch gpg-agent &!
   fi
 fi
 
@@ -226,22 +294,14 @@ if [[ -n "${SSH_CONNECTION:-}" ]]; then
     ' EXIT
 fi
 
-# Cache starship init for faster startup (even though starship already fast af)
-if command -v starship > /dev/null 2>&1; then
-  if [[ ! -f ~/.cache/starship-init.zsh || ~/.zshrc -nt ~/.cache/starship-init.zsh ]]; then
-    mkdir -p ~/.cache
-    starship init zsh > ~/.cache/starship-init.zsh
-  fi
-  source ~/.cache/starship-init.zsh
+# Cache starship init for faster startup
+if (( $+commands[starship] )); then
+  _cached_eval starship starship init zsh
 fi
 
-# Load direnv synchronously (needed for proper functionality)
-if command -v direnv > /dev/null 2>&1; then
-  eval "$(direnv hook zsh)"
-fi
-
-if command -v fnm > /dev/null 2>&1; then
-  eval "$(fnm env)"
+# direnv (cached)
+if (( $+commands[direnv] )); then
+  _cached_eval direnv direnv hook zsh
 fi
 
 # Reduce completion system overhead
@@ -260,7 +320,7 @@ select_gist() {
 
     if [[ -n "$selected_line" ]]; then
         local content
-        content=$(gh gist view $(echo "$selected_line" | awk '{print $1}'))
+        content=$(gh gist view "$(echo "$selected_line" | awk '{print $1}')")
 
         # If output is to terminal, add syntax highlighting
         if [[ -t 1 ]]; then
