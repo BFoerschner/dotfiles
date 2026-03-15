@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+#MISE description="Install zinit, zsh plugins, and warm all shell caches"
+set -euo pipefail
+
+ZINIT_HOME="$HOME/.local/share/zinit/zinit.git"
+
+# Install zinit if missing
+if [ ! -d "$ZINIT_HOME" ]; then
+  echo "Installing zinit..."
+  mkdir -p "$(dirname "$ZINIT_HOME")"
+  git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+fi
+
+# Clear caches to force regeneration
+echo "Clearing shell caches..."
+rm -rf ~/.cache/zsh-completions ~/.cache/zsh-eval-*.zsh ~/.cache/zsh-brew-prefix
+rm -f ~/.zcompdump*
+
+# Source zshrc to trigger plugin installs + cache generation
+# ZSHRC_FORCE_LOAD bypasses the PS1 check for non-interactive shells
+echo "Loading zshrc (installs plugins, generates completions, warms caches)..."
+ZSHRC_FORCE_LOAD=1 zsh -ic 'exit' 2>&1 | cat
+
+# Verify
+echo ""
+echo "=== Results ==="
+echo "Zinit plugins:"
+ls -d ~/.local/share/zinit/plugins/*/ 2>/dev/null | xargs -n1 basename | sed 's/^/  /'
+echo "Cached completions:"
+ls ~/.cache/zsh-completions/ 2>/dev/null | sed 's/^/  /'
+echo "Cached evals:"
+ls ~/.cache/zsh-eval-*.zsh 2>/dev/null | xargs -n1 basename | sed 's/^/  /'
+echo ""
+echo "zsh setup complete!"
