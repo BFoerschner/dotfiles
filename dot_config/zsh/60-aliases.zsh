@@ -8,10 +8,11 @@ alias ldo="lazydocker"
 
 # Enhanced aliases — use $+commands[] (zsh hash lookup, no fork)
 (( $+commands[eza] )) && {
-  alias ls='eza --icons --git'
-  alias ll='eza -l --icons --git'
-  alias la='eza -la --icons --git'
-  alias tree='eza --tree --icons'
+  export EZA_COLORS="mp=1;34"  # ln: symlinks cyan; mp: mount points bold blue (no underline)
+  alias ls='eza --git'
+  alias ll='eza -l --git'
+  alias la='eza -la --git'
+  alias tree='eza --tree'
 }
 (( $+commands[bat] ))   && alias cat='bat --paging=never'
 (( $+commands[fd] ))    && alias find='fd'
