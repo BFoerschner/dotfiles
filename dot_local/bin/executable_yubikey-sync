@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+# yubikey-sync — update sshcontrol and git signingkey to the connected YubiKey,
+# and prime the SSH auth key PIN so subsequent SSH operations don't prompt.
+set -euo pipefail
+umask 077
+
+GNUPGHOME="${GNUPGHOME:-$HOME/.gnupg}"
+sshcontrol="$GNUPGHOME/sshcontrol"
+quiet=0
+[[ "${1:-}" == "-q" ]] && quiet=1
+
+# Fast path: if the auth key currently in sshcontrol has a cached PIN, nothing to do.
+# This runs on every shell open so must be cheap — one file read + one agent socket call.
+current_grip=$(awk '!/^[[:space:]]*(#|$)/ { print $1; exit }' "$sshcontrol" 2>/dev/null || true)
+if [[ -n "$current_grip" ]]; then
+    # KEYINFO fields: S KEYINFO <grip> <type> <serial> <idstr> <cached> ...
+    # $7 = cached status: "1" = PIN cached, "-" = not cached
+    # $NF = flags: "A" = key available (card present) — NOT what we want
+    cached=$(gpg-connect-agent 'KEYINFO --list' /bye 2>/dev/null \
+        | awk -v kg="$current_grip" '$3 == kg { print $7; exit }') || true
+    if [[ "$cached" == "1" ]]; then
+        exit 0
+    fi
+fi
+
+# Slow path: PIN expired or card/sshcontrol changed.
+
+card_status=$(LC_ALL=C gpg --card-status 2>/dev/null) || true
+if [[ -z "$card_status" ]]; then
+    # No card — clear sshcontrol so SSH doesn't prompt to insert the removed card
+    if [[ -n "$current_grip" ]]; then
+        awk '
+            /^# yubikey-sync:/ { skip=1; next }
+            skip { skip=0; next }
+            1
+        ' "$sshcontrol" > "${sshcontrol}.tmp" && mv "${sshcontrol}.tmp" "$sshcontrol"
+        gpg-connect-agent reloadagent /bye >/dev/null 2>&1
+        (( quiet )) || echo "yubikey-sync: card removed, SSH key cleared"
+    fi
+    exit 0
+fi
+
+serial=$(awk '/Serial number/ { print $NF; exit }' <<< "$card_status")
+if [[ -z "$serial" ]]; then
+    (( quiet )) || echo "yubikey-sync: could not parse serial from card-status" >&2
+    exit 1
+fi
+
+signing_key=$(awk '/^Signature key/ {
+    fp = ""; for (i = 4; i <= NF; i++) fp = fp $i
+    if (!index(fp, "[")) print fp
+    exit
+}' <<< "$card_status")
+
+keyinfo=$(gpg-connect-agent 'KEYINFO --list' /bye 2>/dev/null) || true
+auth_line=$(awk -v s="$serial" 'index($0, s) && /OPENPGP\.3/ { print; exit }' <<< "$keyinfo")
+keygrip=$(awk '{ print $3 }' <<< "$auth_line")
+auth_cached=$(awk '{ print $7 }' <<< "$auth_line")
+
+if [[ -z "$keygrip" ]]; then
+    (( quiet )) || echo "yubikey-sync: no auth key for card $serial" >&2
+    exit 1
+fi
+if [[ ! "$keygrip" =~ ^[0-9A-Fa-f]{40}$ ]]; then
+    echo "yubikey-sync: unexpected keygrip format: $keygrip" >&2
+    exit 1
+fi
+
+# Update sshcontrol
+cur=$(awk '!/^[[:space:]]*(#|$)/ { print $1; exit }' "$sshcontrol" 2>/dev/null || true)
+if [[ "$cur" != "$keygrip" ]]; then
+    {
+        awk '
+            /^# yubikey-sync:/ { skip=1; next }
+            skip { skip=0; next }
+            1
+        ' "$sshcontrol" 2>/dev/null || true
+        printf '# yubikey-sync: card %s\n%s 0\n' "$serial" "$keygrip"
+    } > "${sshcontrol}.tmp" && mv "${sshcontrol}.tmp" "$sshcontrol"
+    gpg-connect-agent reloadagent /bye >/dev/null 2>&1
+    (( quiet )) || printf 'yubikey-sync: SSH       → card %s\n' "$serial"
+fi
+
+# Update git signingkey
+if [[ -n "$signing_key" ]]; then
+    cur_sig=$(git config --global user.signingkey 2>/dev/null || true)
+    if [[ "$cur_sig" != "$signing_key" ]]; then
+        git config --global user.signingkey "$signing_key"
+        (( quiet )) || printf 'yubikey-sync: signingkey → %s\n' "$signing_key"
+    fi
+fi
+
+# Prime the auth key PIN if not cached.
+# Signs a dummy payload with the auth keygrip — triggers pinentry once, then caches the PIN
+# for all subsequent SSH operations (same keygrip, same cache entry).
+if [[ "$auth_cached" != "1" ]]; then
+    gpg-connect-agent \
+        "SIGKEY ${keygrip}" \
+        "SETHASH --hash=sha256 $(openssl rand -hex 32)" \
+        "PKSIGN" \
+        /bye >/dev/null
+fi
+
+(( quiet )) || printf 'yubikey-sync: card %s active\n' "$serial"

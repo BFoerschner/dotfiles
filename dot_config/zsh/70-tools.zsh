@@ -16,7 +16,7 @@ if (( $+commands[gpgconf] )); then
   export GPG_TTY=$TTY
   if [[ -z "${SSH_CONNECTION:-}" ]]; then
     export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
-    gpgconf --launch gpg-agent &!
+    { gpgconf --launch gpg-agent && (( $+commands[yubikey-sync] )) && yubikey-sync -q } &!
   fi
 fi
 
