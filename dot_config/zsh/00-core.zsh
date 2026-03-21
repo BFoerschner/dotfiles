@@ -8,7 +8,7 @@ _cached_eval() {
     stale=1
   else
     local f
-    for f in ~/.zshrc "${XDG_CONFIG_HOME:-$HOME/.config}"/zsh/*.zsh; do
+    for f in ~/.zshrc "${XDG_CONFIG_HOME:-$HOME/.config}"/zsh/*.zsh "${XDG_CONFIG_HOME:-$HOME/.config}"/mise/config.toml; do
       if [[ "$f" -nt "$cache" ]]; then
         stale=1
         break
