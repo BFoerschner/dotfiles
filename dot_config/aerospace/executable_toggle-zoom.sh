@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ~/.config/aerospace/toggle-zoom.sh
 
-STATE="/tmp/aerospace-zoom"
+STATE="${TMPDIR:-/tmp}/aerospace-zoom-$(id -u)"
 
 if [ -f "$STATE" ]; then
   rm "$STATE"

@@ -35,7 +35,7 @@ create_session() {
   if [ "$DETACHED" = "true" ]; then
     tmux new-session -d -s "$session_name" -c "$project_dir"
   else
-    tmux new-session -d -s "$session_name" -c "$project_dir"
+    tmux new-session -s "$session_name" -c "$project_dir"
   fi
 }
 

@@ -38,7 +38,7 @@ create_box_line_new() {
   local box_border_color="$8"
 
   local result="$box_border_color$box_start$RESET$text_color$left_text$RESET"
-  local visual_len
+  local visual_len visual_len_right
   visual_len=$(visual_length "$result")
   visual_len_right=$(visual_length "$right_text$box_end")
   local remaining=$((width - visual_len - visual_len_right))
@@ -139,7 +139,11 @@ tmux list-windows -t "$session_name" -F "#{window_index}:#{window_name}:#{window
       connector=" ├─"
     fi
 
-    dir_name=$(realpath --relative-to="${HOME}" "${pane_path}")
+    case "$pane_path" in
+      "$HOME"/*) dir_name="${pane_path#"$HOME/"}" ;;
+      "$HOME") dir_name="" ;;
+      *) dir_name="$pane_path" ;;
+    esac
     if [[ ${#dir_name} -gt 25 ]]; then
       short_path=".../${dir_name: -22}"
     else

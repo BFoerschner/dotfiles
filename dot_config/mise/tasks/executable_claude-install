@@ -1,3 +1,6 @@
 #!/usr/bin/env bash
 #MISE description="Install/update Claude Code native binary"
-curl -fsSL https://claude.ai/install.sh | bash
+install_script="$(mktemp)"
+curl -fsSL https://claude.ai/install.sh -o "$install_script"
+bash "$install_script"
+rm -f "$install_script"

@@ -72,8 +72,7 @@
   lo = log --oneline
   lor = log --oneline --reverse
   lp = log --patch
-  rb = rebase
-  rba = rebase --abort
+rba = rebase --abort
   rbc = rebase --continue
   rbs = rebase --skip
   rbi = rebase --interactive
@@ -117,7 +116,6 @@
   }; f"
 	wip = !"git add -A; git ls-files --deleted -z | xargs -0 git rm; git commit -m \"wip\""
 	unwip = !"git log -n 1 | grep -q -c wip && git reset HEAD~1"
-	; rb = !"git wip;git rebase -i origin/master;git unwip"
   rb = "!f(){ git wip;git rebase -i ${1:-origin/master};git unwip; }; f" # optional parameter to pass branch
 	pr = !"git fetch;git wip;git rebase --stat origin;git unwip;git heads"
 	head = !"git log -n1"
@@ -143,5 +141,3 @@
   }; f"
 [commit]
 	gpgsign = true
-[gpg]
-	program = /opt/homebrew/bin/gpg
