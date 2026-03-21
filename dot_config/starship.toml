@@ -1,6 +1,7 @@
 # Get editor completions based on the config schema
 "$schema" = 'https://starship.rs/config-schema.json'
-scan_timeout = 10                                    # Wait 10 milliseconds for starship to check files under the current directory.
+scan_timeout = 30                                    # Wait 30 milliseconds for starship to check files under the current directory.
+command_timeout = 500                                 # Timeout for external commands (ms).
 add_newline = false
 
 format = """
@@ -43,7 +44,7 @@ only_detached = true
 commit_hash_length = 7
 
 [custom.git_dirty]
-command = "bash -c 'git status --porcelain | grep -q . && echo \"*\"'"
+command = "git diff --quiet HEAD -- 2>/dev/null || echo '*'"
 when = "git rev-parse --is-inside-work-tree"
 format = "[$output]($style)"
 style = 'fg:#6c6c6c bold italic'
