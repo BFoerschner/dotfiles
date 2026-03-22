@@ -32,3 +32,8 @@ if [[ "$TERM_PROGRAM" != "Apple_Terminal" ]]; then
     done
   fi
 fi
+
+# activate mise early so its shims are in PATH before aliases
+if [[ -x "$HOME/.local/bin/mise" ]]; then
+  _cached_eval mise "$HOME/.local/bin/mise" hook-env -s zsh
+fi

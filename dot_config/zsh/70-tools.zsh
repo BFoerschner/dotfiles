@@ -20,11 +20,6 @@ if (( $+commands[gpgconf] )); then
   fi
 fi
 
-# activate mise (cached)
-if [[ -x "$HOME/.local/bin/mise" ]]; then
-  _cached_eval mise "$HOME/.local/bin/mise" hook-env -s zsh
-fi
-
 # Cache starship init for faster startup
 if (( $+commands[starship] )); then
   _cached_eval starship starship init zsh
