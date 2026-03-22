@@ -9,20 +9,43 @@ MAGENTA='\033[1;35m'
 CYAN='\033[1;36m'
 GREEN='\033[1;32m'
 GRAY='\033[0;37m'
+DIM='\033[2m'
+RED='\033[1;31m'
 RESET='\033[0m'
 
-printf "${MAGENTA}%s${RESET}\n\n" "$session"
+current_session=$(tmux display-message -p "#{session_name}" 2>/dev/null)
 
+# Session header
+if [[ "$session" == "$current_session" ]]; then
+  printf "${MAGENTA}[%s]${RESET} ${DIM}(attached)${RESET}\n\n" "$session"
+else
+  printf "${MAGENTA}[%s]${RESET}\n\n" "$session"
+fi
+
+# Windows and panes
 tmux list-windows -t "$session" -F '#{window_index}:#{window_name}:#{window_active}' 2>/dev/null | while IFS=: read -r idx name active; do
   if [[ "$active" == "1" ]]; then
-    printf "${GREEN}* %s:%s${RESET}\n" "$idx" "$name"
+    color="$GREEN"
   else
-    printf "${CYAN}  %s:%s${RESET}\n" "$idx" "$name"
+    color="$CYAN"
   fi
 
-  tmux list-panes -t "${session}:${idx}" -F '#{pane_current_command}:#{pane_current_path}' 2>/dev/null | while IFS=: read -r cmd path; do
+  printf "${RED}┌─${RESET} ${color}%s:%s${RESET}\n" "$idx" "$name"
+
+  panes=$(tmux list-panes -t "${session}:${idx}" -F '#{pane_current_command}:#{pane_current_path}' 2>/dev/null)
+  total=$(echo "$panes" | wc -l)
+  count=0
+
+  echo "$panes" | while IFS=: read -r cmd path; do
+    ((count++))
     path="${path/#$HOME/\~}"
     [[ ${#path} -gt 30 ]] && path="...${path: -27}"
-    printf "${GRAY}    %s (%s)${RESET}\n" "$cmd" "$path"
+
+    if [[ $count -eq $total ]]; then
+      printf "${RED}└──${RESET} ${GRAY}%s ${DIM}(%s)${RESET}\n" "$cmd" "$path"
+    else
+      printf "${RED}├──${RESET} ${GRAY}%s ${DIM}(%s)${RESET}\n" "$cmd" "$path"
+    fi
   done
+  echo
 done
