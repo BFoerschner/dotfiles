@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+# Auto-populate sessions from git repos
+if [[ -n "${TMUX_AUTO_POPULATE_SESSIONS:-}" && -n "${TMUX_GIT_PROJECTS_DIRS:-}" ]]; then
+  IFS=':' read -ra DIRS <<< "$TMUX_GIT_PROJECTS_DIRS"
+  for dir in "${DIRS[@]}"; do
+    [[ -d "$dir" ]] && "$HOME/.local/bin/tmux-git-sessions" "$dir" true >/dev/null 2>&1
+  done
+fi
+
+tmux list-sessions -F "session	#{session_name}	#{session_name} (#{session_windows} windows)" 2>/dev/null

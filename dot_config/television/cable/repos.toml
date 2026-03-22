@@ -7,6 +7,7 @@ command = "$HOME/.local/bin/repo-list"
 
 [preview]
 command = "$HOME/.local/bin/repo-preview '{}'"
+env = { TERM = "xterm-256color", CLICOLOR_FORCE = "1" }
 
 [keybindings]
 enter = "actions:clone"

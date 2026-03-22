@@ -2,9 +2,11 @@
 set -euo pipefail
 
 # Clone a repo and open a tmux session in it.
-# Usage: repo-clone-session <owner/repo>
+# Usage: repo-clone-session <provider:owner/repo>
 
-REPO="$1"
+INPUT="$1"
+PROVIDER="${INPUT%%:*}"
+REPO="${INPUT#*:}"
 REPO_NAME="$(basename "$REPO")"
 PROJECTS_DIR="$HOME/Projects"
 TARGET="$PROJECTS_DIR/$REPO_NAME"
@@ -12,18 +14,39 @@ TARGET="$PROJECTS_DIR/$REPO_NAME"
 mkdir -p "$PROJECTS_DIR"
 
 if [[ ! -d "$TARGET" ]]; then
-  if gh repo clone "$REPO" "$TARGET" 2>/dev/null; then
-    :
-  else
-    clone_url=$(tea repos search --output json "$REPO" 2>/dev/null \
-      | jq -r '.[0].clone_url // empty')
-    if [[ -n "$clone_url" ]]; then
-      git clone "$clone_url" "$TARGET"
-    else
-      echo "Could not clone $REPO" >&2
-      exit 1
-    fi
-  fi
+  case "$PROVIDER" in
+    github)
+      if ! gh repo clone "$REPO" "$TARGET" 2>/dev/null; then
+        echo "Could not clone $REPO from GitHub" >&2
+        exit 1
+      fi
+      ;;
+    gitea)
+      clone_url=$(tea repos search --output json "$REPO" 2>/dev/null \
+        | jq -r '.[0].clone_url // empty')
+      if [[ -n "$clone_url" ]]; then
+        git clone "$clone_url" "$TARGET"
+      else
+        echo "Could not clone $REPO from Gitea" >&2
+        exit 1
+      fi
+      ;;
+    *)
+      # Unknown provider — try gh then tea
+      if gh repo clone "$REPO" "$TARGET" 2>/dev/null; then
+        :
+      else
+        clone_url=$(tea repos search --output json "$REPO" 2>/dev/null \
+          | jq -r '.[0].clone_url // empty')
+        if [[ -n "$clone_url" ]]; then
+          git clone "$clone_url" "$TARGET"
+        else
+          echo "Could not clone $REPO" >&2
+          exit 1
+        fi
+      fi
+      ;;
+  esac
 fi
 
 session_name="${REPO_NAME#.}"
