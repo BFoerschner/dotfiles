@@ -1,0 +1,23 @@
+[metadata]
+name = "repos"
+description = "Browse and clone repositories (GitHub + Gitea)"
+
+[source]
+command = "$HOME/.local/bin/repo-list"
+
+[preview]
+command = "$HOME/.local/bin/repo-preview '{}'"
+
+[keybindings]
+enter = "actions:clone"
+ctrl-g = "actions:sessions"
+
+[actions.sessions]
+description = "Back to sessions"
+command = "$HOME/.local/bin/tmux-session-switcher"
+mode = "execute"
+
+[actions.clone]
+description = "Clone and open tmux session"
+command = "$HOME/.local/bin/repo-clone-session '{}'"
+mode = "execute"

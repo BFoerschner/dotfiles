@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+# GitHub repos
+if command -v gh &>/dev/null && gh auth status &>/dev/null; then
+  gh repo list --limit 100 --json nameWithOwner --jq '.[].nameWithOwner' 2>/dev/null
+fi
+
+# Gitea repos
+if command -v tea &>/dev/null && tea login list &>/dev/null; then
+  tea repos list --output json 2>/dev/null | jq -r '.[].full_name // empty' 2>/dev/null
+fi

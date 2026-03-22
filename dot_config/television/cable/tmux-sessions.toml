@@ -12,6 +12,7 @@ command = "$HOME/.local/bin/tmux-preview '{}'"
 [keybindings]
 enter = "actions:switch"
 ctrl-n = "actions:create"
+ctrl-g = "actions:from-repo"
 ctrl-d = ["actions:kill", "reload_source"]
 ctrl-r = ["actions:rescan", "reload_source"]
 
@@ -28,6 +29,11 @@ mode = "fork"
 [actions.create]
 description = "Create new session"
 command = "$HOME/.local/bin/tmux-session-create"
+mode = "execute"
+
+[actions.from-repo]
+description = "Create session from repo"
+command = "tv repos --no-remote"
 mode = "execute"
 
 [actions.rescan]
