@@ -1,7 +1,7 @@
 [user]
   name = Björn Förschner
   email = bjoern@foerschner.dev
-	signingkey = 935293C729ED3170
+	signingkey = F0CF79AC8104102B55EF09BF935293C729ED3170
 [advice]
   defaultBranchName = false
 [diff]

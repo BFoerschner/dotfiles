@@ -1,82 +1,34 @@
-#!/bin/bash
-# ~/.local/bin/tmux-git-sessions
-# Script to scan a directory and create tmux sessions for git projects
+#!/usr/bin/env bash
+set -euo pipefail
 
-TARGET_DIR=${1:-$PWD}
-DETACHED=${2:-false}
+TARGET_DIR="${1:-$PWD}"
+DETACHED="${2:-false}"
 
-# Check if target directory exists
-if [ ! -d "$TARGET_DIR" ]; then
-  echo "Error: Directory '$TARGET_DIR' does not exist"
+if [[ ! -d "$TARGET_DIR" ]]; then
+  echo "Error: Directory '$TARGET_DIR' does not exist" >&2
   exit 1
 fi
 
-echo "Scanning '$TARGET_DIR' for git projects..."
+new_count=0
 
-# Function to check if directory is a git repository
-is_git_repo() {
-  local dir="$1"
-  [ -d "$dir/.git" ]
-}
-
-# Function to check if session already exists
-session_exists() {
-  local session_name="$1"
-  tmux has-session -t "$session_name" 2>/dev/null
-}
-
-# Function to create session
-create_session() {
-  local session_name="$1"
-  local project_dir="$2"
-
-  echo "  Creating session '$session_name' for '$project_dir'"
-
-  if [ "$DETACHED" = "true" ]; then
-    tmux new-session -d -s "$session_name" -c "$project_dir"
-  else
-    tmux new-session -s "$session_name" -c "$project_dir"
-  fi
-}
-
-# Counter for found projects
-project_count=0
-new_sessions_created=0
-
-# Scan directory for git projects (including hidden directories)
 shopt -s dotglob nullglob
-for dir in "$TARGET_DIR"/*; do
-  if [ -d "$dir" ]; then
-    basename_dir=$(basename "$dir")
-    # Remove leading dots from session names
-    session_name=${basename_dir#.}
+for dir in "$TARGET_DIR"/*/; do
+  [[ -d "$dir/.git" ]] || continue
 
-    # Check if it's a git repository (but not a submodule or nested git repo)
-    if is_git_repo "$dir"; then
-      # Additional check: make sure this isn't a submodule by checking parent
-      parent_dir=$(dirname "$dir")
-      if ! is_git_repo "$parent_dir"; then
-        ((project_count++))
-        if ! session_exists "$session_name"; then
-          create_session "$session_name" "$dir"
-          ((new_sessions_created++))
-        fi
-      else
-        echo "  Skipping '$basename_dir' (appears to be a submodule or nested repo)"
-      fi
+  basename_dir=$(basename "$dir")
+  session_name="${basename_dir#.}"
+
+  if ! tmux has-session -t "$session_name" 2>/dev/null; then
+    if [[ "$DETACHED" == "true" ]]; then
+      tmux new-session -d -s "$session_name" -c "$dir"
+    else
+      tmux new-session -s "$session_name" -c "$dir"
     fi
+    ((new_count++))
   fi
 done
 shopt -u dotglob nullglob
 
-echo
-if [ $project_count -eq 0 ]; then
-  echo "No git projects found in '$TARGET_DIR'"
-elif [ $new_sessions_created -eq 0 ]; then
-  echo "All git projects already have sessions, no new sessions created"
-  exit 0
-else
-  echo "Created $new_sessions_created new session(s)"
-  echo "Available sessions:"
-  tmux list-sessions 2>/dev/null | grep -E "^[^:]+:" | cut -d: -f1 | sort | sed 's/^/- /'
+if [[ "$DETACHED" != "true" ]]; then
+  echo "Created $new_count new session(s) from '$TARGET_DIR'"
 fi

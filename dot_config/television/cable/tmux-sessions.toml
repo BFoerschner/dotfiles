@@ -1,0 +1,30 @@
+[metadata]
+name = "tmux-sessions"
+description = "Manage tmux sessions"
+requirements = ["tmux"]
+
+[source]
+command = "tmux list-sessions -F '#{session_name}' 2>/dev/null | sort"
+
+[preview]
+command = "$HOME/.local/bin/tmux-preview '{}'"
+
+[keybindings]
+enter = "actions:switch"
+ctrl-d = ["actions:kill", "reload_source"]
+ctrl-r = ["actions:rescan", "reload_source"]
+
+[actions.switch]
+description = "Switch to session"
+command = "tmux switch-client -t '{}'"
+mode = "execute"
+
+[actions.kill]
+description = "Kill session"
+command = "tmux kill-session -t '{}'"
+mode = "fork"
+
+[actions.rescan]
+description = "Rescan git project directories"
+command = "$HOME/.local/bin/tmux-git-sessions scan"
+mode = "fork"
