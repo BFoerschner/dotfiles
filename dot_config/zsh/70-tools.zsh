@@ -25,6 +25,11 @@ if (( $+commands[starship] )); then
   _cached_eval starship starship init zsh
 fi
 
+# zoxide (cached) — replaces cd with smart directory jumping
+if (( $+commands[zoxide] )); then
+  _cached_eval zoxide zoxide init zsh --cmd cd
+fi
+
 # direnv (cached)
 if (( $+commands[direnv] )); then
   _cached_eval direnv direnv hook zsh
