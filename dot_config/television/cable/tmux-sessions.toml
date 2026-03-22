@@ -11,6 +11,7 @@ command = "$HOME/.local/bin/tmux-preview '{}'"
 
 [keybindings]
 enter = "actions:switch"
+ctrl-n = "actions:create"
 ctrl-d = ["actions:kill", "reload_source"]
 ctrl-r = ["actions:rescan", "reload_source"]
 
@@ -23,6 +24,11 @@ mode = "execute"
 description = "Kill session"
 command = "tmux kill-session -t '{}'"
 mode = "fork"
+
+[actions.create]
+description = "Create new session"
+command = "$HOME/.local/bin/tmux-session-create"
+mode = "execute"
 
 [actions.rescan]
 description = "Rescan git project directories"
