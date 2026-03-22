@@ -4,21 +4,27 @@ description = "Manage tmux sessions"
 requirements = ["tmux"]
 
 [source]
-command = "tmux list-sessions -F '#{session_name}' 2>/dev/null | sort"
+command = [
+  "tmux list-sessions -F '#{session_name}' 2>/dev/null | sort",
+  "$HOME/.local/bin/repo-list-github",
+  "$HOME/.local/bin/repo-list-gitea",
+]
 
 [preview]
 command = "$HOME/.local/bin/tmux-preview '{}'"
+env = { TERM = "xterm-256color", CLICOLOR_FORCE = "1" }
 
 [keybindings]
+tab = "scroll_preview_half_page_down"
+backtab = "scroll_preview_half_page_up"
 enter = "actions:switch"
 ctrl-n = "actions:create"
-ctrl-g = "actions:from-repo"
 ctrl-d = ["actions:kill", "reload_source"]
 ctrl-r = ["actions:rescan", "reload_source"]
 
 [actions.switch]
-description = "Switch to session"
-command = "tmux switch-client -t '{}'"
+description = "Switch to session or clone repo"
+command = "case '{}' in github:*|gitea:*) $HOME/.local/bin/repo-clone-session '{}' ;; *) tmux switch-client -t '{}' ;; esac"
 mode = "execute"
 
 [actions.kill]
@@ -29,11 +35,6 @@ mode = "fork"
 [actions.create]
 description = "Create new session"
 command = "$HOME/.local/bin/tmux-session-create"
-mode = "execute"
-
-[actions.from-repo]
-description = "Create session from repo"
-command = "tv repos --no-remote"
 mode = "execute"
 
 [actions.rescan]

@@ -1,29 +1,5 @@
 #!/usr/bin/env bash
 set -uo pipefail
 
-# GitHub repos (gh paginates internally with --limit)
-if command -v gh &>/dev/null && gh auth status &>/dev/null; then
-  gh api graphql --paginate -f query='
-    query($endCursor: String) {
-      viewer {
-        repositories(first: 100, after: $endCursor, ownerAffiliations: [OWNER, COLLABORATOR, ORGANIZATION_MEMBER]) {
-          nodes { nameWithOwner }
-          pageInfo { hasNextPage endCursor }
-        }
-      }
-    }
-  ' --jq '.data.viewer.repositories.nodes[].nameWithOwner' 2>/dev/null \
-    | sed 's/^/github:/'
-fi
-
-# Gitea repos (paginate through API)
-if command -v tea &>/dev/null && tea login list &>/dev/null; then
-  page=1
-  while true; do
-    result=$(tea api "/user/repos?page=$page&limit=50" 2>/dev/null) || break
-    count=$(echo "$result" | jq 'length' 2>/dev/null) || break
-    [[ -z "$count" || "$count" == "null" || "$count" -eq 0 ]] && break
-    echo "$result" | jq -r '.[].full_name // empty' 2>/dev/null | sed 's/^/gitea:/'
-    ((page++))
-  done
-fi
+"$HOME/.local/bin/repo-list-github"
+"$HOME/.local/bin/repo-list-gitea"

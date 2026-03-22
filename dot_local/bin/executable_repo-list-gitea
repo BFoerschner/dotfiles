@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+if ! command -v tea &>/dev/null; then
+  echo "tea CLI not installed (mise install tea)"
+  exit 0
+fi
+
+login_count=$(tea login list --output json 2>/dev/null | jq 'length' 2>/dev/null)
+if [[ -z "$login_count" || "$login_count" -eq 0 ]]; then
+  echo "Not logged in to Gitea (tea login add)"
+  exit 0
+fi
+
+page=1
+while true; do
+  result=$(tea api "/user/repos?page=$page&limit=50" 2>/dev/null) || break
+  count=$(echo "$result" | jq 'length' 2>/dev/null) || break
+  [[ -z "$count" || "$count" == "null" || "$count" -eq 0 ]] && break
+  echo "$result" | jq -r '.[].full_name // empty' 2>/dev/null | sed 's/^/gitea:/'
+  ((page++))
+done

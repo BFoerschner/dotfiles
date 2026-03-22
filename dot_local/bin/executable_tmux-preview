@@ -1,7 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-session="$1"
+export PATH="$HOME/.local/share/mise/shims:$PATH"
+
+input="$1"
+
+# Delegate to repo-preview for repo entries
+case "$input" in
+  github:*|gitea:*) exec "$HOME/.local/bin/repo-preview" "$input" ;;
+esac
+
+session="$input"
 tmux has-session -t "$session" 2>/dev/null || { echo "Session not found"; exit 1; }
 
 # Colors
