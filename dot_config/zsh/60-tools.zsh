@@ -30,7 +30,13 @@ if (( $+commands[zoxide] )); then
   _cached_eval zoxide zoxide init zsh --cmd cd
 fi
 
-# direnv (cached)
-if (( $+commands[direnv] )); then
-  _cached_eval direnv direnv hook zsh
+if (( $+commands[tv] )); then
+  if (( ! $+functions[compdef] )); then
+    # compinit runs lazily via zinit wait"0b"; stub compdef for now
+    compdef() { :; }
+    _cached_eval tv tv init zsh
+    unfunction compdef
+  else
+    _cached_eval tv tv init zsh
+  fi
 fi
