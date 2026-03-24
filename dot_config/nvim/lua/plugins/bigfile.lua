@@ -1,1 +1,1 @@
-return { "LunarVim/bigfile.nvim" }
+return { "LunarVim/bigfile.nvim", enabled = false }
