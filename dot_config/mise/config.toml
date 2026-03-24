@@ -50,6 +50,7 @@ television = "0.15.4"
 "github:veeso/termscp" = "0.19"
 "github:dalance/procs" = "0.14"
 "github:neovim/neovim" = "0.11"
+"go:github.com/joshi4/splash" = "0.9.5"
 
 [task_config]
 includes = ["tasks"]
