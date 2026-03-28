@@ -242,12 +242,13 @@ fallback_channel = "files"
 ]
 "git-log" = ["git log", "git show"]
 "docker-images" = ["docker run"]
+"processes" = ["kill"]
 
 
 [shell_integration.keybindings]
 # controls which key binding should trigger tv
 # for shell autocomplete
-"smart_autocomplete" = "ctrl-t"
+"smart_autocomplete" = "tab"
 # controls which keybinding should trigger tv
 # for command history
 "command_history" = "ctrl-r"

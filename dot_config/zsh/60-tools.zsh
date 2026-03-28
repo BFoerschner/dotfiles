@@ -39,4 +39,7 @@ if (( $+commands[tv] )); then
   else
     _cached_eval tv tv init zsh
   fi
+
+  # Keep Ctrl+T bound alongside Tab (tv config only supports one keybinding)
+  bindkey '^T' tv-smart-autocomplete
 fi
