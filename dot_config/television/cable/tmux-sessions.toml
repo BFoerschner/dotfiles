@@ -21,6 +21,7 @@ enter = "actions:switch"
 ctrl-n = "actions:create"
 ctrl-d = ["actions:kill", "reload_source"]
 ctrl-r = ["actions:rescan", "reload_source"]
+f2 = "actions:rename"
 
 [actions.switch]
 description = "Switch to session or clone repo"
@@ -35,6 +36,11 @@ mode = "fork"
 [actions.create]
 description = "Create new session"
 command = "$HOME/.local/bin/tmux-session-create"
+mode = "execute"
+
+[actions.rename]
+description = "Rename session"
+command = "$HOME/.local/bin/tmux-session-rename '{}'"
 mode = "execute"
 
 [actions.rescan]
