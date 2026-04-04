@@ -14,7 +14,7 @@ alpha-blending = linear-corrected
 quit-after-last-window-closed = true
 
 font-family = CaskaydiaCove Nerd Font
-font-size = 15
+font-size = 16
 
 theme = Monokai Soda
 
