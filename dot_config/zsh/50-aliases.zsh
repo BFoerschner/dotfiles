@@ -3,6 +3,7 @@ alias gig='gi $(gi list &>/dev/null | tr "," "\n" | fzf)'
 alias mkdir='mkdir -p'
 alias cp='cp -i'
 alias mv='mv -i'
+alias ..='cd ..'
 alias ...='cd ../..'
 alias path='echo $PATH | tr ":" "\n"'
 
