@@ -1,0 +1,23 @@
+[metadata]
+name = "all-dirs"
+description = "Select directories (including hidden)"
+requirements = ["fd"]
+
+[source]
+command = ["fd -t d --hidden", "fd -t d"]
+
+[preview]
+command = "ls -la --color=always '{}'"
+
+[keybindings]
+shortcut = "f2"
+
+[actions.cd]
+description = "Open a shell in the selected directory"
+command = "cd '{}' && $SHELL"
+mode = "execute"
+
+[actions.goto_parent_dir]
+description = "Re-opens tv in the parent directory"
+command = "tv all-dirs .."
+mode = "execute"

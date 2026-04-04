@@ -1,0 +1,20 @@
+[metadata]
+name = "docker-volumes"
+description = "List and manage Docker volumes"
+requirements = ["docker", "jq"]
+
+[source]
+command = "docker volume ls --format '{{.Name}}\\t{{.Driver}}'"
+display = "{split:\\t:0} ({split:\\t:1})"
+output = "{split:\\t:0}"
+
+[preview]
+command = "docker volume inspect '{split:\\t:0}' 2>/dev/null | jq -C '.[0]'"
+
+[keybindings]
+ctrl-d = ["actions:remove", "reload_source"]
+
+[actions.remove]
+description = "Remove volume"
+command = "docker volume rm '{split:\\t:0}'"
+mode = "fork"

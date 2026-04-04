@@ -1,0 +1,19 @@
+[metadata]
+name = "processes"
+description = "List and kill running processes"
+
+[source]
+# Ctrl+S to cycle: my processes -> all processes
+command = [
+  "ps -U dev -o pid,user,%cpu,%mem,command | tail -n +2 | awk '{printf \"%s|%s|%s|%s|\",$1,$2,$3,$4; for(i=5;i<=NF;i++) printf \"%s \",$i; print \"\"}'",
+  "ps -eo pid,user,%cpu,%mem,command | tail -n +2 | awk '{printf \"%s|%s|%s|%s|\",$1,$2,$3,$4; for(i=5;i<=NF;i++) printf \"%s \",$i; print \"\"}'",
+]
+display = "{split:|:0} {split:|:4}"
+
+[preview]
+command = "ps -p {split:|:0} -o pid,ppid,user,%cpu,%mem,command"
+
+[actions.kill]
+description = "Kill process (SIGKILL)"
+command = "kill -9 {split:|:0}"
+mode = "execute"

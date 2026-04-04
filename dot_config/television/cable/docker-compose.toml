@@ -1,0 +1,53 @@
+[metadata]
+name = "docker-compose"
+description = "Manage Docker Compose services"
+requirements = ["docker", "jq"]
+
+[source]
+command = [
+  "docker compose ps --format '{{.Name}}\\t{{.Service}}\\t{{.Status}}' 2>/dev/null",
+  "docker compose ps -a --format '{{.Name}}\\t{{.Service}}\\t{{.Status}}' 2>/dev/null",
+]
+display = "{split:\\t:1} ({split:\\t:2})"
+output = "{split:\\t:1}"
+
+[preview]
+command = [
+  "docker compose logs --tail=100 --no-log-prefix '{split:\\t:1}' 2>/dev/null",
+  "docker inspect '{split:\\t:0}' 2>/dev/null | jq -C \"$FILTER\"",
+]
+
+[preview.env]
+FILTER = '.[0] | {Name, Status: .State.Status, Image: .Config.Image, Ports: [(.NetworkSettings.Ports // {}) | to_entries[] | select(.value) | "\(.value[0].HostPort) -> \(.key)"], Networks: ((.NetworkSettings.Networks // {}) | keys)}'
+
+[keybindings]
+ctrl-l = "actions:logs"
+ctrl-e = "actions:exec"
+ctrl-u = ["actions:up", "reload_source"]
+ctrl-d = ["actions:stop", "reload_source"]
+ctrl-r = ["actions:restart", "reload_source"]
+
+[actions.up]
+description = "Start service"
+command = "docker compose up -d '{split:\\t:1}'"
+mode = "fork"
+
+[actions.stop]
+description = "Stop service"
+command = "docker compose stop '{split:\\t:1}'"
+mode = "fork"
+
+[actions.restart]
+description = "Restart service"
+command = "docker compose restart '{split:\\t:1}'"
+mode = "fork"
+
+[actions.logs]
+description = "Follow service logs"
+command = "docker compose logs -f '{split:\\t:1}'"
+mode = "execute"
+
+[actions.exec]
+description = "Shell into service"
+command = "docker compose exec '{split:\\t:1}' /bin/sh"
+mode = "execute"

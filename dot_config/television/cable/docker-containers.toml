@@ -1,0 +1,56 @@
+[metadata]
+name = "docker-containers"
+description = "List and manage Docker containers"
+requirements = ["docker", "jq"]
+
+[source]
+command = [
+  "docker ps --format '{{.Names}}\\t{{.Image}}\\t{{.Status}}'",
+  "docker ps -a --format '{{.Names}}\\t{{.Image}}\\t{{.Status}}'",
+]
+display = "{split:\\t:0} ({split:\\t:2})"
+output = "{split:\\t:0}"
+
+[preview]
+command = "docker inspect '{split:\\t:0}' 2>/dev/null | jq -C \"$FILTER\""
+
+[preview.env]
+FILTER = '.[0] | {Name, Status: .State.Status, Image: .Config.Image, Ports: [(.NetworkSettings.Ports // {}) | to_entries[] | select(.value) | "\(.value[0].HostIp):\(.value[0].HostPort) -> \(.key)"], Networks: [(.NetworkSettings.Networks // {}) | to_entries[] | "\(.key): \(.value.IPAddress)"], Mounts: [(.Mounts // [])[] | "\(.Source) -> \(.Destination)"]}'
+
+[keybindings]
+f3 = ["actions:start", "reload_source"]
+f2 = ["actions:stop", "reload_source"]
+ctrl-r = ["actions:restart", "reload_source"]
+ctrl-l = "actions:logs"
+ctrl-e = "actions:exec"
+ctrl-d = ["actions:remove", "reload_source"]
+
+[actions.start]
+description = "Start container"
+command = "docker start '{split:\\t:0}'"
+mode = "fork"
+
+[actions.stop]
+description = "Stop container"
+command = "docker stop '{split:\\t:0}'"
+mode = "fork"
+
+[actions.restart]
+description = "Restart container"
+command = "docker restart '{split:\\t:0}'"
+mode = "fork"
+
+[actions.logs]
+description = "Follow container logs"
+command = "docker logs -f '{split:\\t:0}'"
+mode = "execute"
+
+[actions.exec]
+description = "Shell into container"
+command = "docker exec -it '{split:\\t:0}' /bin/sh"
+mode = "execute"
+
+[actions.remove]
+description = "Remove container"
+command = "docker rm '{split:\\t:0}'"
+mode = "fork"

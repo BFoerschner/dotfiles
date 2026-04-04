@@ -16,7 +16,7 @@
 # General settings
 # ----------------------------------------------------------------------------
 tick_rate = 50
-default_channel = "files"
+default_channel = "all-files"
 # Shell settings
 # --------------
 # Default shell used for executing commands (source, preview, actions).
@@ -64,12 +64,12 @@ position = "top"
 prompt = ">"
 # header = "{}"
 # padding = {"left": 0, "right": 0, "top": 0, "bottom": 0}
-border_type = "rounded" # https://docs.rs/ratatui/latest/ratatui/widgets/block/enum.BorderType.html#variants
+border_type = "rounded"  # https://docs.rs/ratatui/latest/ratatui/widgets/block/enum.BorderType.html#variants
 
 [ui.status_bar]
 # Status bar separators (bubble):
-#separator_open = ""
-#separator_close = ""
+# separator_open = ""
+# separator_close = ""
 # Status bar separators (box):
 separator_open = ""
 separator_close = ""
@@ -82,8 +82,8 @@ border_type = "rounded"
 [ui.preview_panel]
 # Preview panel size (percentage of screen width/height)
 size = 50
-#header = ""
-#footer = ""
+# header = ""
+# footer = ""
 scrollbar = true
 border_type = "rounded"
 # padding = {"left": 0, "right": 0, "top": 0, "bottom": 0}
@@ -123,7 +123,6 @@ sort_alphabetically = true
 # ------------------
 esc = "quit"
 ctrl-c = "quit"
-
 # Navigation and selection
 # -----------------------
 down = "select_next_entry"
@@ -132,30 +131,25 @@ ctrl-j = "select_next_entry"
 up = "select_prev_entry"
 ctrl-p = "select_prev_entry"
 ctrl-k = "select_prev_entry"
-
 # History navigation
 # -----------------
 ctrl-up = "select_prev_history"
 ctrl-down = "select_next_history"
-
 # Multi-selection
 # --------------
 tab = "toggle_selection_down"
 backtab = "toggle_selection_up"
 enter = "confirm_selection"
-
 # Preview panel control
 # --------------------
 pagedown = "scroll_preview_half_page_down"
 pageup = "scroll_preview_half_page_up"
 ctrl-f = "cycle_previews"
-
 # Data operations
 # --------------
 ctrl-y = "copy_entry_to_clipboard"
 ctrl-r = "reload_source"
 ctrl-s = "cycle_sources"
-
 # UI Features
 # ----------
 ctrl-t = "toggle_remote_control"
@@ -164,7 +158,6 @@ ctrl-o = "toggle_preview"
 ctrl-h = "toggle_help"
 f12 = "toggle_status_bar"
 ctrl-l = "toggle_layout"
-
 # Input field actions
 # ----------------------------------------
 backspace = "delete_prev_char"
@@ -188,7 +181,7 @@ ctrl-e = "go_to_input_end"
 
 [shell_integration]
 # This specifies the default fallback channel if no other channel is matched.
-fallback_channel = "files"
+fallback_channel = "all-files"
 
 [shell_integration.channel_triggers]
 # Add your channel triggers here. Each key is a channel that will be triggered
@@ -202,14 +195,14 @@ fallback_channel = "files"
 # You would add the following to your configuration file:
 # ```
 # [shell_integration.channel_triggers]
-# "git-branches" = ["git checkout"]
+# "git-branch" = ["git checkout"]
 # "dirs" = ["ls"]
 # "files" = ["cat", "cp"]
 # ```
 "alias" = ["alias", "unalias"]
 "env" = ["export", "unset"]
 "dirs" = ["cd", "ls", "rmdir", "z"]
-"files" = [
+"all-files" = [
   "cat",
   "less",
   "head",
@@ -241,14 +234,61 @@ fallback_channel = "files"
   "git push",
 ]
 "git-log" = ["git log", "git show"]
-"docker-images" = ["docker run"]
+"docker-containers" = [
+  "docker attach",
+  "docker commit",
+  "docker cp",
+  "docker diff",
+  "docker exec",
+  "docker export",
+  "docker kill",
+  "docker logs",
+  "docker pause",
+  "docker port",
+  "docker rename",
+  "docker restart",
+  "docker rm",
+  "docker start",
+  "docker stop",
+  "docker top",
+  "docker unpause",
+  "docker wait",
+]
+"docker-images" = [
+  "docker history",
+  "docker image inspect",
+  "docker image rm",
+  "docker push",
+  "docker rmi",
+  "docker run",
+  "docker save",
+  "docker tag",
+]
+"docker-networks" = [
+  "docker network connect",
+  "docker network disconnect",
+  "docker network inspect",
+  "docker network rm",
+]
+"docker-volumes" = [
+  "docker volume inspect",
+  "docker volume rm",
+]
+"docker-compose" = [
+  "docker compose down",
+  "docker compose exec",
+  "docker compose logs",
+  "docker compose restart",
+  "docker compose start",
+  "docker compose stop",
+  "docker compose up",
+]
 "processes" = ["kill"]
-
 
 [shell_integration.keybindings]
 # controls which key binding should trigger tv
 # for shell autocomplete
-"smart_autocomplete" = "tab"
+"smart_autocomplete" = "ctrl-t"
 # controls which keybinding should trigger tv
 # for command history
 "command_history" = "ctrl-r"

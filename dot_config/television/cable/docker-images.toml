@@ -1,0 +1,35 @@
+[metadata]
+name = "docker-images"
+description = "List and manage Docker images"
+requirements = ["docker", "jq"]
+
+[source]
+command = "docker images --format '{{.Repository}}:{{.Tag}}\\t{{.ID}}\\t{{.Size}}' | grep -v '<none>'"
+display = "{split:\\t:0} ({split:\\t:2})"
+output = "{split:\\t:0}"
+
+[preview]
+command = "docker image inspect '{split:\\t:0}' 2>/dev/null | jq -C \"$FILTER\""
+
+[preview.env]
+FILTER = '.[0] | {RepoTags, Id: .Id[7:19], Created, Size: ((.Size // 0) / 1048576 | floor | tostring + " MB"), Architecture, Os}'
+
+[keybindings]
+ctrl-r = "actions:run"
+ctrl-s = "actions:shell"
+ctrl-d = ["actions:remove", "reload_source"]
+
+[actions.run]
+description = "Run container from image"
+command = "docker run -it '{split:\\t:0}'"
+mode = "execute"
+
+[actions.shell]
+description = "Shell into image"
+command = "docker run -it --rm '{split:\\t:0}' /bin/sh"
+mode = "execute"
+
+[actions.remove]
+description = "Remove image"
+command = "docker rmi '{split:\\t:0}'"
+mode = "fork"
